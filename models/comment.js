@@ -6,7 +6,11 @@ const CommentSchema = new Schema({
   post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   message: { type: String, required: true },
-  date: { type: Date, require: true },
+  date: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
 });
 
 //Export model
