@@ -1,4 +1,6 @@
+require("leaked-handles");
 const index = require("../routes/index");
+const mongoTesting = require("./mongoConfigTesting");
 
 const request = require("supertest");
 const express = require("express");
@@ -6,6 +8,14 @@ const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use("/", index);
+
+beforeAll(async () => {
+  await mongoTesting.initializeMongoServer();
+});
+
+afterAll(async () => {
+  await mongoTesting.closeMongoServer();
+});
 
 test("GET user's posts works", (done) => {
   request(app)
