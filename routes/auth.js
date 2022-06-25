@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
 /* POST login. */
+// input: username, password
+// output: { user, token }
 router.post("/login", function (req, res, next) {
   passport.authenticate(
     "local",
@@ -13,7 +15,7 @@ router.post("/login", function (req, res, next) {
     (err, user, info) => {
       if (err || !user) {
         return res.status(400).json({
-          message: "Something is not right",
+          msg: "Something is not right",
           user: user,
           info: info.message,
         });

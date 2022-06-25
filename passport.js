@@ -23,7 +23,7 @@ passport.use(
               first_name: user.first_name,
               last_name: user.last_name,
               username: user.username,
-              pfp: { type: String, required: true },
+              pfp: user.pfp,
               _id: user._id,
             };
             return cb(null, resUser, { message: "Logged in successfully" });
