@@ -1,7 +1,10 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 
 /* GET specific user */
+// input: params.userId
+// output: { first_name, last_name, username, pfp }
 exports.user_get = async function (req, res, next) {
   try {
     const user = await User.findById(req.params.userId).populate(
@@ -9,11 +12,13 @@ exports.user_get = async function (req, res, next) {
     );
     res.json(user);
   } catch (err) {
-    res.json({ error: err.message || err });
+    res.json({ msg: err.message || err });
   }
 };
 
 /* POST create user */
+// input: { first_name, last_name, username, password, pfp }
+// output: { userId }
 exports.user_post = [
   body("first_name", "First name must be between 1 and 72 characters.")
     .trim()
@@ -46,24 +51,25 @@ exports.user_post = [
       const found = await User.findOne({ username: username });
       if (found) {
         res.json({
-          error: "User with username `" + username + "` already exists",
+          msg: "User with username `" + username + "` already exists",
         });
         return;
       }
 
-      bcrypt.hash(password, 10, async (err, hashedPassword) => {
-        if (err) {
-        }
-        const user = new User({
-          first_name,
-          last_name,
-          username,
-          password: hashedPassword,
-          pfp,
-        });
-        // Save user
-        res.json(await user.save());
+      // hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = new User({
+        first_name,
+        last_name,
+        username,
+        password: hashedPassword,
+        pfp,
       });
+
+      // Save user
+      const userId = (await user.save())._id;
+
+      res.json({ userId });
     } catch (err) {
       res.json(err);
     }

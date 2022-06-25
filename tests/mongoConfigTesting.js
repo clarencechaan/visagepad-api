@@ -15,12 +15,9 @@ async function initializeMongoServer() {
     console.log(e);
   });
 
-  mongoose.connection.once("open", () => {
-    console.log(`MongoDB successfully connected to ${mongoUri}`);
-  });
+  mongoose.connection.once("open", () => {});
 
   mongoose.connection.once("close", () => {
-    console.log(`MongoDB successfully closed`);
     mongoServer.stop();
   });
 }

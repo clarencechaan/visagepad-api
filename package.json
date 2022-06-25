@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "jest": "^28.1.1",
-    "leaked-handles": "^5.2.0",
     "mongodb-memory-server": "^8.7.1",
     "supertest": "^6.2.3"
   }

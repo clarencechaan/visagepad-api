@@ -1,4 +1,3 @@
-require("leaked-handles");
 const index = require("../routes/index");
 const mongoTesting = require("./mongoConfigTesting");
 
