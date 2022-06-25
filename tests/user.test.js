@@ -2,7 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 
 const index = require("../routes/index");
-const mongoTesting = require("./mongoConfigTesting");
+const mongoTesting = require("../mongoConfigTesting");
 
 const request = require("supertest");
 const express = require("express");
@@ -78,3 +78,13 @@ test("POST create user works", async () => {
   // check password is hashed and matches
   expect(await bcrypt.compare(user.password, dbUser.password)).toBeTruthy();
 });
+
+test("POST allow friendship (send friend request) works", async () => {});
+
+test("POST allow friendship (accept friend request) works", async () => {});
+
+test("POST disallow friendship (unfriend) works", async () => {});
+
+test("POST disallow friendship (deny friend request) works", async () => {});
+
+test("POST disallow friendship (revoke friend request) works", async () => {});

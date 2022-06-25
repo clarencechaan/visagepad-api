@@ -8,7 +8,7 @@ const UserRelationshipScheme = new Schema({
   status: {
     type: String,
     required: true,
-    enum: ["None", "Requested", "Friends"],
+    enum: ["None", "Requesting", "Requestee", "Friends"],
     default: "None",
   },
 });

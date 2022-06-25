@@ -41,4 +41,16 @@ router.get("/api/users/:userId", user_controller.user_get);
 /* POST create user */
 router.post("/api/users", user_controller.user_post);
 
+/* POST allow friendship (send or accept friend request) */
+router.post(
+  "/api/users/:userId/allow-friendship",
+  user_controller.allow_user_friendship_post
+);
+
+/* POST disallow friendship (unfriend, deny friend request or revoke friend request) */
+router.post(
+  "/api/users/:userId/disallow-friendship",
+  user_controller.disallow_user_friendship_post
+);
+
 module.exports = router;

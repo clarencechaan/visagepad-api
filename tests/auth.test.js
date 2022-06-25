@@ -4,7 +4,7 @@ const passport = require("passport");
 require("../passport");
 
 const auth = require("../routes/auth");
-const mongoTesting = require("./mongoConfigTesting");
+const mongoTesting = require("../mongoConfigTesting");
 
 const request = require("supertest");
 const express = require("express");

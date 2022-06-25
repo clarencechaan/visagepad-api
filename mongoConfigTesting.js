@@ -15,8 +15,6 @@ async function initializeMongoServer() {
     console.log(e);
   });
 
-  mongoose.connection.once("open", () => {});
-
   mongoose.connection.once("close", () => {
     mongoServer.stop();
   });
