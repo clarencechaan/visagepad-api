@@ -2,6 +2,8 @@ const User = require("../models/user");
 const UserRelationship = require("../models/userRelationship");
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
+const passport = require("passport");
+const { ObjectId } = require("mongodb");
 
 /* GET specific user */
 // input: params.userId
@@ -86,11 +88,16 @@ async function getUserRelationships(userIdA, userIdB) {
   let userRelationshipB = { relating_user: userIdB, related_user: userIdA };
 
   try {
+    const dbRelationshipA = await UserRelationship.findOne(userRelationshipA);
+    const dbRelationshipB = await UserRelationship.findOne(userRelationshipB);
+
     // get user relationships if they exist
     userRelationshipA =
-      (await UserRelationship.find(userRelationshipA)) || userRelationshipA;
+      (await UserRelationship.findOne(userRelationshipA)) || userRelationshipA;
     userRelationshipB =
-      (await UserRelationship.find(userRelationshipB)) || userRelationshipB;
+      (await UserRelationship.findOne(userRelationshipB)) || userRelationshipB;
+
+    console.log(userRelationshipA);
 
     // save user relationships to database if they don't exist
     if (!userRelationshipA.status) {
@@ -115,35 +122,38 @@ async function getUserRelationships(userIdA, userIdB) {
 /* POST allow friendship (send or accept friend request) */
 // input: req.user, params.userId
 // output: { msg }
-exports.allow_user_friendship_post = async function (req, res, next) {
-  try {
-    const requestingUserId = req.user._id;
-    const requesteeUserId = req.params.userId;
-    let { userRelationshipA, userRelationshipB } = getUserRelationships(
-      requestingUserId,
-      requesteeUserId
-    );
+exports.allow_user_friendship_post = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const requestingUserId = req.user._id;
+      const requesteeUserId = ObjectId(req.params.userId);
+      let { userRelationshipA, userRelationshipB } = getUserRelationships(
+        requestingUserId,
+        requesteeUserId
+      );
 
-    let msg = "";
-    switch (
-      { statusA: userRelationshipA.status, statusB: userRelationshipB.status }
-    ) {
-      case { statusA: "None", statusB: "None" }:
-        userRelationshipA.status = "Requesting";
-        userRelationshipB.status = "Requestee";
-        msg = "Friend request sent.";
-        break;
-      case { statusA: "Requestee", statusB: "Requesting" }:
-        userRelationshipA.status = "Friends";
-        userRelationshipA.status = "Friends";
-        msg = "Friend request accepted.";
+      let msg = "";
+      switch (
+        { statusA: userRelationshipA.status, statusB: userRelationshipB.status }
+      ) {
+        case { statusA: "None", statusB: "None" }:
+          userRelationshipA.status = "Requesting";
+          userRelationshipB.status = "Requestee";
+          msg = "Friend request sent.";
+          break;
+        case { statusA: "Requestee", statusB: "Requesting" }:
+          userRelationshipA.status = "Friends";
+          userRelationshipA.status = "Friends";
+          msg = "Friend request accepted.";
+      }
+
+      res.json({ msg: msg || "No action taken." });
+    } catch (err) {
+      res.json({ msg: err.message || err });
     }
-
-    res.json({ msg: msg || "No action taken." });
-  } catch (err) {
-    res.json({ msg: err.message || err });
-  }
-};
+  },
+];
 
 /* POST disallow friendship (unfriend, deny friend request or revoke friend request) */
 // input: req.user, params.userId
