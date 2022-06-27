@@ -187,77 +187,80 @@ exports.allow_user_friendship_post = [
 /* POST disallow friendship (unfriend, deny friend request or revoke friend request) */
 // input: req.user, params.userId
 // output: { msg }
-exports.disallow_user_friendship_post = async function (req, res, next) {
-  try {
-    const requestingUserId = req.user._id;
-    const requesteeUserId = req.params.userId;
-    let { userRelationshipA, userRelationshipB } = await getUserRelationships(
-      requestingUserId,
-      requesteeUserId
-    );
+exports.disallow_user_friendship_post = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const requestingUserId = req.user._id;
+      const requesteeUserId = req.params.userId;
+      let { userRelationshipA, userRelationshipB } = await getUserRelationships(
+        requestingUserId,
+        requesteeUserId
+      );
 
-    let msg = "";
-    if (
-      userRelationshipA.status === "Friends" &&
-      userRelationshipA.status === "Friends"
-    ) {
-      // users are friends
-      userRelationshipA.status = "None";
-      userRelationshipB.status = "None";
-      // save changes to database
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipA._id,
-        userRelationshipA
-      );
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipB._id,
-        userRelationshipB
-      );
-      msg = "Unfriended user.";
-    } else if (
-      userRelationshipA.status === "Requestee" &&
-      userRelationshipB.status === "Requesting"
-    ) {
-      // user is the recipient of a friend request
-      userRelationshipA.status = "None";
-      userRelationshipB.status = "None";
-      // save changes to database
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipA._id,
-        userRelationshipA
-      );
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipB._id,
-        userRelationshipB
-      );
-      msg = "Denied friend request.";
-    } else if (
-      userRelationshipA.status === "Requesting" &&
-      userRelationshipB.status === "Requestee"
-    ) {
-      // user is requesting friend
-      userRelationshipA.status = "None";
-      userRelationshipB.status = "None";
-      // save changes to database
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipA._id,
-        userRelationshipA
-      );
-      await UserRelationship.findByIdAndUpdate(
-        userRelationshipB._id,
-        userRelationshipB
-      );
-      msg = "Revoked friend request.";
-    } else if (
-      userRelationshipA.status === "None" &&
-      userRelationshipB.status === "None"
-    ) {
-      // users are not friends
-      msg = "You are already not friends with this user.";
+      let msg = "";
+      if (
+        userRelationshipA.status === "Friends" &&
+        userRelationshipA.status === "Friends"
+      ) {
+        // users are friends
+        userRelationshipA.status = "None";
+        userRelationshipB.status = "None";
+        // save changes to database
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipA._id,
+          userRelationshipA
+        );
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipB._id,
+          userRelationshipB
+        );
+        msg = "Unfriended user.";
+      } else if (
+        userRelationshipA.status === "Requestee" &&
+        userRelationshipB.status === "Requesting"
+      ) {
+        // user is the recipient of a friend request
+        userRelationshipA.status = "None";
+        userRelationshipB.status = "None";
+        // save changes to database
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipA._id,
+          userRelationshipA
+        );
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipB._id,
+          userRelationshipB
+        );
+        msg = "Denied friend request.";
+      } else if (
+        userRelationshipA.status === "Requesting" &&
+        userRelationshipB.status === "Requestee"
+      ) {
+        // user is requesting friend
+        userRelationshipA.status = "None";
+        userRelationshipB.status = "None";
+        // save changes to database
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipA._id,
+          userRelationshipA
+        );
+        await UserRelationship.findByIdAndUpdate(
+          userRelationshipB._id,
+          userRelationshipB
+        );
+        msg = "Revoked friend request.";
+      } else if (
+        userRelationshipA.status === "None" &&
+        userRelationshipB.status === "None"
+      ) {
+        // users are not friends
+        msg = "You are already not friends with this user.";
+      }
+
+      res.json({ msg });
+    } catch (err) {
+      res.json({ msg: err.message || err });
     }
-
-    res.json({ msg });
-  } catch (err) {
-    res.json({ msg: err.message || err });
-  }
-};
+  },
+];
