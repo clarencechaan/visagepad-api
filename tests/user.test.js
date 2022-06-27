@@ -41,6 +41,12 @@ let users = [
     username: "lsimpson",
     plaintext_password: "saxophone",
   },
+  {
+    first_name: "Harry",
+    last_name: "Potter",
+    username: "hpotter5",
+    plaintext_password: "hogwarts",
+  },
 ];
 
 let relationships = [
@@ -59,43 +65,71 @@ let relationships = [
   {
     relating_user: users[0],
     related_user: users[3],
-    status: "Friends",
+    status: "Requesting",
   },
   {
     relating_user: users[3],
+    related_user: users[0],
+    status: "Requestee",
+  },
+  {
+    relating_user: users[0],
+    related_user: users[4],
+    status: "Friends",
+  },
+  {
+    relating_user: users[4],
     related_user: users[0],
     status: "Friends",
   },
   {
     relating_user: users[1],
     related_user: users[2],
-    status: "Requestee",
+    status: "Friends",
   },
   {
     relating_user: users[2],
+    related_user: users[1],
+    status: "Friends",
+  },
+  {
+    relating_user: users[1],
+    related_user: users[3],
+    status: "Requestee",
+  },
+  {
+    relating_user: users[3],
     related_user: users[1],
     status: "Requesting",
   },
   {
     relating_user: users[1],
-    related_user: users[3],
+    related_user: users[4],
     status: "Requesting",
   },
   {
-    relating_user: users[3],
+    relating_user: users[4],
     related_user: users[1],
     status: "Requestee",
   },
+  {
+    relating_user: users[2],
+    related_user: users[3],
+    status: "None",
+  },
+  {
+    relating_user: users[3],
+    related_user: users[2],
+    status: "None",
+  },
 ];
 
-beforeAll(async () => {
-  await mongoTesting.initializeMongoServer();
-
+async function populateDb() {
   for (const user of users) {
     // hash password
     user.password = await bcrypt.hash(user.plaintext_password, 10);
 
-    // save user and set id
+    // save user to database and set id
     user._id = (await new User(user).save())._id.toString();
 
     // set user token
@@ -115,6 +149,11 @@ beforeAll(async () => {
       await new UserRelationship(userRelationship).save()
     )._id.toString();
   }
+}
+
+beforeAll(async () => {
+  await mongoTesting.initializeMongoServer();
+  await populateDb();
 });
 
 afterAll(async () => {
@@ -164,19 +203,76 @@ test("POST create user works", async () => {
   expect(await bcrypt.compare(user.password, dbUser.password)).toBeTruthy();
 });
 
-test("POST allow friendship (send friend request) works", async () => {
-  // send allow friendship POST request for 2 users who are not friends
-  const response = await request(app)
-    .post(`/api/users/${users[1]._id}/allow-friendship`)
-    .set("Authorization", "Bearer " + users[0].token);
+describe("POST allow friendship works", () => {
+  test("2 users who are not friends (send friend request)", async () => {
+    const resNotFriends = await request(app)
+      .post(`/api/users/${users[1]._id}/allow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(resNotFriends.status).toEqual(200);
+    expect(resNotFriends.headers["content-type"]).toMatch(/json/);
+    expect(resNotFriends.body).toEqual({ msg: "Friend request sent." });
 
-  console.log(response.body);
+    // check user relationship is saved to database
+    const relationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[1]._id,
+    });
+    const relationshipB = await UserRelationship.findOne({
+      relating_user: users[1]._id,
+      related_user: users[0]._id,
+    });
+    expect(relationshipA.status).toEqual("Requesting");
+    expect(relationshipB.status).toEqual("Requestee");
+  });
+
+  test("user who has been sent a friend request by the other (accept friend request)", async () => {
+    const resRequestee = await request(app)
+      .post(`/api/users/${users[2]._id}/allow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(resRequestee.status).toEqual(200);
+    expect(resRequestee.headers["content-type"]).toMatch(/json/);
+    expect(resRequestee.body).toEqual({ msg: "Accepted friend request." });
+
+    // check user relationship is saved to database
+    const relationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[2]._id,
+    });
+    const relationshipB = await UserRelationship.findOne({
+      relating_user: users[2]._id,
+      related_user: users[0]._id,
+    });
+    expect(relationshipA.status).toEqual("Friends");
+    expect(relationshipB.status).toEqual("Friends");
+  });
+
+  test("user who has already sent a friend request to the other (no action)", async () => {
+    const resRequesting = await request(app)
+      .post(`/api/users/${users[3]._id}/allow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(resRequesting.status).toEqual(200);
+    expect(resRequesting.headers["content-type"]).toMatch(/json/);
+    expect(resRequesting.body).toEqual({ msg: "Friend request already sent." });
+  });
+
+  test("2 users who are already friends (no action)", async () => {
+    const resFriends = await request(app)
+      .post(`/api/users/${users[4]._id}/allow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(resFriends.status).toEqual(200);
+    expect(resFriends.headers["content-type"]).toMatch(/json/);
+    expect(resFriends.body).toEqual({
+      msg: "You are already friends with this user.",
+    });
+  });
 });
 
-test("POST allow friendship (accept friend request) works", async () => {});
+describe("POST disallow friendship works", () => {
+  test("2 users who are friends (unfriend)", async () => {});
 
-test("POST disallow friendship (unfriend) works", async () => {});
+  test("user who has been sent a friend request by the other (deny friend request)", async () => {});
 
-test("POST disallow friendship (deny friend request) works", async () => {});
+  test("user who has sent a friend request to the other (revoke friend request)", async () => {});
 
-test("POST disallow friendship (revoke friend request) works", async () => {});
+  test("2 users who are already not friends (no action)", async () => {});
+});
