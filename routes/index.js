@@ -53,4 +53,7 @@ router.post(
   user_controller.disallow_user_friendship_post
 );
 
+/* GET friends list */
+router.get("/api/users/:userId/friends", user_controller.friends_get);
+
 module.exports = router;

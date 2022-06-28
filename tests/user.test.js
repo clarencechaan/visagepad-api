@@ -55,22 +55,22 @@ let relationships = [
   {
     relating_user: users[0],
     related_user: users[2],
-    status: "Requestee",
+    status: "Requesting",
   },
   {
     relating_user: users[2],
     related_user: users[0],
-    status: "Requesting",
+    status: "Requestee",
   },
   {
     relating_user: users[0],
     related_user: users[3],
-    status: "Requesting",
+    status: "Requestee",
   },
   {
     relating_user: users[3],
     related_user: users[0],
-    status: "Requestee",
+    status: "Requesting",
   },
   {
     relating_user: users[0],
@@ -83,44 +83,14 @@ let relationships = [
     status: "Friends",
   },
   {
-    relating_user: users[1],
-    related_user: users[2],
-    status: "Friends",
-  },
-  {
     relating_user: users[2],
-    related_user: users[1],
-    status: "Friends",
-  },
-  {
-    relating_user: users[1],
-    related_user: users[3],
-    status: "Requestee",
-  },
-  {
-    relating_user: users[3],
-    related_user: users[1],
-    status: "Requesting",
-  },
-  {
-    relating_user: users[1],
     related_user: users[4],
-    status: "Requesting",
+    status: "Friends",
   },
   {
     relating_user: users[4],
-    related_user: users[1],
-    status: "Requestee",
-  },
-  {
-    relating_user: users[2],
-    related_user: users[3],
-    status: "None",
-  },
-  {
-    relating_user: users[3],
     related_user: users[2],
-    status: "None",
+    status: "Friends",
   },
 ];
 
@@ -130,7 +100,7 @@ async function populateDb() {
     user.password = await bcrypt.hash(user.plaintext_password, 10);
 
     // save user to database and set id
-    user._id = (await new User(user).save())._id.toString();
+    user._id = (await new User(user).save())._id;
 
     // set user token
     user.token = (
@@ -143,11 +113,9 @@ async function populateDb() {
 
   // save user relationships to database, then get and set _id
   for (const userRelationship of relationships) {
-    userRelationship.relating_user = userRelationship.relating_user._id;
-    userRelationship.related_user = userRelationship.related_user._id;
     userRelationship._id = (
       await new UserRelationship(userRelationship).save()
-    )._id.toString();
+    )._id;
   }
 }
 
@@ -205,6 +173,18 @@ test("POST create user works", async () => {
 
 describe("POST allow friendship works", () => {
   test("2 users who are not friends (send friend request)", async () => {
+    // check users aren't friends
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[1]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[1]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("None");
+    expect(prevRelationshipB.status).toEqual("None");
+
     const resNotFriends = await request(app)
       .post(`/api/users/${users[1]._id}/allow-friendship`)
       .set("Authorization", "Bearer " + users[0].token);
@@ -223,32 +203,74 @@ describe("POST allow friendship works", () => {
     });
     expect(relationshipA.status).toEqual("Requesting");
     expect(relationshipB.status).toEqual("Requestee");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndUpdate(
+      relationshipA._id,
+      prevRelationshipA
+    );
+    await UserRelationship.findByIdAndUpdate(
+      relationshipB._id,
+      prevRelationshipB
+    );
   });
 
   test("user who has been sent a friend request by the other (accept friend request)", async () => {
+    // check user is requestee
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[3]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[3]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Requestee");
+    expect(prevRelationshipB.status).toEqual("Requesting");
+
     const resRequestee = await request(app)
-      .post(`/api/users/${users[2]._id}/allow-friendship`)
+      .post(`/api/users/${users[3]._id}/allow-friendship`)
       .set("Authorization", "Bearer " + users[0].token);
     expect(resRequestee.status).toEqual(200);
     expect(resRequestee.headers["content-type"]).toMatch(/json/);
     expect(resRequestee.body).toEqual({ msg: "Accepted friend request." });
 
     // check user relationship is saved to database
-    const relationshipA = await UserRelationship.findOne({
-      relating_user: users[0]._id,
-      related_user: users[2]._id,
-    });
-    const relationshipB = await UserRelationship.findOne({
-      relating_user: users[2]._id,
-      related_user: users[0]._id,
-    });
+    const relationshipA = await UserRelationship.findById(
+      prevRelationshipA._id
+    );
+    const relationshipB = await UserRelationship.findById(
+      prevRelationshipB._id
+    );
     expect(relationshipA.status).toEqual("Friends");
     expect(relationshipB.status).toEqual("Friends");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndUpdate(
+      relationshipA._id,
+      prevRelationshipA
+    );
+    await UserRelationship.findByIdAndUpdate(
+      relationshipB._id,
+      prevRelationshipB
+    );
   });
 
   test("user who has already sent a friend request to the other (no action)", async () => {
+    // check user is requesting
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[2]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[2]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Requesting");
+    expect(prevRelationshipB.status).toEqual("Requestee");
+
     const resRequesting = await request(app)
-      .post(`/api/users/${users[3]._id}/allow-friendship`)
+      .post(`/api/users/${users[2]._id}/allow-friendship`)
       .set("Authorization", "Bearer " + users[0].token);
     expect(resRequesting.status).toEqual(200);
     expect(resRequesting.headers["content-type"]).toMatch(/json/);
@@ -256,6 +278,18 @@ describe("POST allow friendship works", () => {
   });
 
   test("2 users who are already friends (no action)", async () => {
+    // check users are friends
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[4]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[4]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Friends");
+    expect(prevRelationshipB.status).toEqual("Friends");
+
     const resFriends = await request(app)
       .post(`/api/users/${users[4]._id}/allow-friendship`)
       .set("Authorization", "Bearer " + users[0].token);
@@ -269,76 +303,195 @@ describe("POST allow friendship works", () => {
 
 describe("POST disallow friendship works", () => {
   test("2 users who are friends (unfriend)", async () => {
+    // check users are friends
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[4]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[4]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Friends");
+    expect(prevRelationshipB.status).toEqual("Friends");
+
     const resFriends = await request(app)
-      .post(`/api/users/${users[2]._id}/disallow-friendship`)
-      .set("Authorization", "Bearer " + users[1].token);
+      .post(`/api/users/${users[4]._id}/disallow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(resFriends.status).toEqual(200);
     expect(resFriends.headers["content-type"]).toMatch(/json/);
     expect(resFriends.body).toEqual({ msg: "Unfriended user." });
 
     // check user relationship is saved to database
-    const relationshipA = await UserRelationship.findOne({
-      relating_user: users[1]._id,
-      related_user: users[2]._id,
-    });
-    const relationshipB = await UserRelationship.findOne({
-      relating_user: users[2]._id,
-      related_user: users[1]._id,
-    });
+    const relationshipA = await UserRelationship.findById(
+      prevRelationshipA._id
+    );
+    const relationshipB = await UserRelationship.findById(
+      prevRelationshipB._id
+    );
     expect(relationshipA.status).toEqual("None");
     expect(relationshipB.status).toEqual("None");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndUpdate(
+      relationshipA._id,
+      prevRelationshipA
+    );
+    await UserRelationship.findByIdAndUpdate(
+      relationshipB._id,
+      prevRelationshipB
+    );
   });
 
   test("user who has been sent a friend request by the other (deny friend request)", async () => {
+    // check user is requestee
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[3]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[3]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Requestee");
+    expect(prevRelationshipB.status).toEqual("Requesting");
+
     const resRequestee = await request(app)
       .post(`/api/users/${users[3]._id}/disallow-friendship`)
-      .set("Authorization", "Bearer " + users[1].token);
+      .set("Authorization", "Bearer " + users[0].token);
     expect(resRequestee.status).toEqual(200);
     expect(resRequestee.headers["content-type"]).toMatch(/json/);
     expect(resRequestee.body).toEqual({ msg: "Denied friend request." });
 
     // check user relationship is saved to database
-    const relationshipA = await UserRelationship.findOne({
-      relating_user: users[1]._id,
-      related_user: users[3]._id,
-    });
-    const relationshipB = await UserRelationship.findOne({
-      relating_user: users[3]._id,
-      related_user: users[1]._id,
-    });
+    const relationshipA = await UserRelationship.findById(
+      prevRelationshipA._id
+    );
+    const relationshipB = await UserRelationship.findById(
+      prevRelationshipB._id
+    );
     expect(relationshipA.status).toEqual("None");
     expect(relationshipB.status).toEqual("None");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndUpdate(
+      relationshipA._id,
+      prevRelationshipA
+    );
+    await UserRelationship.findByIdAndUpdate(
+      relationshipB._id,
+      prevRelationshipB
+    );
   });
 
   test("user who has sent a friend request to the other (revoke friend request)", async () => {
+    // check user is requesting
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[2]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[2]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("Requesting");
+    expect(prevRelationshipB.status).toEqual("Requestee");
+
     const resRequesting = await request(app)
-      .post(`/api/users/${users[4]._id}/disallow-friendship`)
-      .set("Authorization", "Bearer " + users[1].token);
+      .post(`/api/users/${users[2]._id}/disallow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(resRequesting.status).toEqual(200);
     expect(resRequesting.headers["content-type"]).toMatch(/json/);
     expect(resRequesting.body).toEqual({ msg: "Revoked friend request." });
 
     // check user relationship is saved to database
-    const relationshipA = await UserRelationship.findOne({
-      relating_user: users[1]._id,
-      related_user: users[4]._id,
-    });
-    const relationshipB = await UserRelationship.findOne({
-      relating_user: users[4]._id,
-      related_user: users[1]._id,
-    });
+    const relationshipA = await UserRelationship.findById(
+      prevRelationshipA._id
+    );
+    const relationshipB = await UserRelationship.findById(
+      prevRelationshipB._id
+    );
     expect(relationshipA.status).toEqual("None");
     expect(relationshipB.status).toEqual("None");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndUpdate(
+      relationshipA._id,
+      prevRelationshipA
+    );
+    await UserRelationship.findByIdAndUpdate(
+      relationshipB._id,
+      prevRelationshipB
+    );
   });
 
   test("2 users who are already not friends (no action)", async () => {
+    // check users aren't friends
+    const prevRelationshipA = await UserRelationship.findOne({
+      relating_user: users[0]._id,
+      related_user: users[1]._id,
+    });
+    const prevRelationshipB = await UserRelationship.findOne({
+      relating_user: users[1]._id,
+      related_user: users[0]._id,
+    });
+    expect(prevRelationshipA.status).toEqual("None");
+    expect(prevRelationshipB.status).toEqual("None");
+
     const resNotFriends = await request(app)
-      .post(`/api/users/${users[3]._id}/disallow-friendship`)
-      .set("Authorization", "Bearer " + users[2].token);
+      .post(`/api/users/${users[1]._id}/disallow-friendship`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(resNotFriends.status).toEqual(200);
     expect(resNotFriends.headers["content-type"]).toMatch(/json/);
     expect(resNotFriends.body).toEqual({
       msg: "You are already not friends with this user.",
     });
+  });
+});
+
+describe("GET friends list works", () => {
+  test("user with multiple friends", async () => {
+    // send GET request with userId parameter
+    const response = await request(app).get(
+      "/api/users/" + users[4]._id + "/friends"
+    );
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives friends
+    expect(
+      response.body.some((friend) => friend._id === users[0]._id.toString())
+    ).toBeTruthy();
+    expect(
+      response.body.some((friend) => friend._id === users[2]._id.toString())
+    ).toBeTruthy();
+    expect(response.body.length).toEqual(2);
+  });
+
+  test("user with 1 friend", async () => {
+    // send GET request with userId parameter
+    const response = await request(app).get(
+      "/api/users/" + users[0]._id + "/friends"
+    );
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives friend
+    expect(
+      response.body.some((friend) => friend._id === users[4]._id.toString())
+    ).toBeTruthy();
+    expect(response.body.length).toEqual(1);
+  });
+
+  test("user with no friends", async () => {
+    // send GET request with userId parameter
+    const response = await request(app).get(
+      "/api/users/" + users[1]._id + "/friends"
+    );
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives empty array
+    expect(response.body.length).toEqual(0);
   });
 });

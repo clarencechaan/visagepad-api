@@ -264,3 +264,23 @@ exports.disallow_user_friendship_post = [
     }
   },
 ];
+
+/* GET friends list */
+// input: params.userId
+// output: [{ username, first_name, last_name, pfp }, ...]
+exports.friends_get = async function (req, res, next) {
+  try {
+    const relationships = await UserRelationship.find({
+      relating_user: req.params.userId,
+      status: "Friends",
+    })
+      .select("related_user")
+      .populate("related_user", "username first_name last_name pfp");
+    const friends = relationships.map((relationship) => {
+      return relationship.related_user;
+    });
+    res.json(friends);
+  } catch (err) {
+    res.json({ msg: err.message || err });
+  }
+};
