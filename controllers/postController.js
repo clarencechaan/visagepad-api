@@ -1,4 +1,5 @@
 const Post = require("../models/post");
+const UserRelationship = require("../models/userRelationship");
 const passport = require("passport");
 const { body, validationResult } = require("express-validator");
 
@@ -7,7 +8,9 @@ const { body, validationResult } = require("express-validator");
 // output: [{ author, content, date, img_url, likes }, ...]
 exports.user_posts_get = async function (req, res, next) {
   try {
-    const posts = await Post.find({ author: req.params.userId });
+    const posts = await Post.find({ author: req.params.userId }).sort({
+      date: -1,
+    });
     res.json(posts);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -54,9 +57,31 @@ exports.user_posts_post = [
 /* GET requesting user's feed (sorted by date descending) */
 // input: req.user
 // output: [{ author, content, date, img_url, likes }, ...]
-exports.feed_get = async function (req, res, next) {
-  res.json({ msg: "GET requesting user's feed" });
-};
+exports.feed_get = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      // get friends list
+      const relationships = await UserRelationship.find({
+        relating_user: req.user._id,
+        status: "Friends",
+      });
+      const friends = relationships.map((relationship) => {
+        return relationship.related_user;
+      });
+
+      // get posts of each friend
+      const posts = friends.length
+        ? await Post.find({
+            $or: friends.map((friend) => ({ author: friend })),
+          }).sort({ date: -1 })
+        : [];
+      res.json(posts);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
 
 /* GET specific post */
 // input: params.postId

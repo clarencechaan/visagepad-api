@@ -1,12 +1,6 @@
 const Post = require("../models/post");
 require("../passport");
-const {
-  users,
-  relationships,
-  posts,
-  populateDb,
-  setTokens,
-} = require("./sampleData");
+const { users, posts, populateDb, setTokens } = require("./sampleData");
 
 const index = require("../routes/index");
 const auth = require("../routes/auth");
@@ -54,8 +48,10 @@ describe("GET user's posts works", () => {
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(2);
-    expect(response.body[0]._id).toEqual(posts[0]._id.toString());
-    expect(response.body[1]._id).toEqual(posts[1]._id.toString());
+
+    // check posts are correct and are given in date desc order
+    expect(response.body[0]._id).toEqual(posts[1]._id.toString());
+    expect(response.body[1]._id).toEqual(posts[0]._id.toString());
   });
 });
 
@@ -66,6 +62,7 @@ test("POST create post works", async () => {
     img_url: "https://i.imgur.com/1Dn4AvO.jpg",
   };
 
+  // send POST request with token
   const response = await request(app)
     .post(`/api/users/${users[0]._id}/posts`)
     .set("Authorization", "Bearer " + users[0].token)
@@ -84,14 +81,47 @@ test("POST create post works", async () => {
   expect(dbPost.content).toEqual(post.content);
   expect(dbPost.img_url).toEqual(post.img_url);
   expect(dbPost.likes).toEqual([]);
+
+  // revert changes in database
+  await Post.findByIdAndDelete(postId);
 });
 
 describe("GET user's feed works", () => {
-  test("feed with 1 post", async () => {});
+  test("feed with 1 post", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get("/api/my-feed")
+      .set("Authorization", "Bearer " + users[2].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body.length).toEqual(1);
+    expect(response.body[0]._id).toEqual(posts[4]._id.toString());
+  });
 
-  test("feed with no posts", async () => {});
+  test("feed with no posts", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get("/api/my-feed")
+      .set("Authorization", "Bearer " + users[1].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body.length).toEqual(0);
+  });
 
-  test("feed with multiple posts", async () => {});
+  test("feed with multiple posts", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get("/api/my-feed")
+      .set("Authorization", "Bearer " + users[4].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body.length).toEqual(3);
+
+    // check posts are correct and are given in date desc order
+    expect(response.body[0]._id).toEqual(posts[2]._id.toString());
+    expect(response.body[1]._id).toEqual(posts[1]._id.toString());
+    expect(response.body[2]._id).toEqual(posts[0]._id.toString());
+  });
 });
 
 test("GET specific post works", async () => {});

@@ -90,7 +90,7 @@ let posts = [
     author: users[0],
     content:
       "Both sympathize suitable melancholy thirty maids event balls besides company while conveying windows frankness family off suffering. Each  debating subjects fortune friendly above chiefly maids. Meet missed replying recurred size her then. Four cease abilities call own looking stand letters uncommonly. Made repulsive green merits its handsome rose blushes are songs tolerably burst bore home denote.",
-    date: Date.now(),
+    date: Date.now() - 1000 * 60 * 60 * 24 * 4,
     img_url: "https://i.imgur.com/2NqtASX.jpg",
     likes: [],
   },
@@ -106,7 +106,7 @@ let posts = [
     author: users[2],
     content:
       "Total are become alteration only believed consisted ten manners party ashamed. Formerly prevent thrown any merits are denote prospect adieus afraid too chief exquisite perfectly. Noise they perfectly sight reasonably way worth likewise confined waiting dinner do settling played disposed esteems produced. Ask eagerness produce smallest contrasted. Met inhabiting shade marriage drawn acuteness ﻿no supposing downs sake then place partiality mrs followed rapid unsatiable. ",
-    date: Date.now() - 1000 * 60 * 60 * 24 * 4,
+    date: Date.now(),
     img_url: "https://i.imgur.com/RAiEIvK.jpg",
     likes: [users[4]],
   },
@@ -117,6 +117,14 @@ let posts = [
     date: Date.now() - 1000 * 60 * 60 * 24 * 6,
     img_url: "",
     likes: [users[0], users[2], users[3]],
+  },
+  {
+    author: users[4],
+    content:
+      "Greatest boisterous form doubtful basket door. Shall shewing extensive highest like point then acceptance distrusts welcomed greatly going satisfied blind expect repeated that. Families wrong seen remark mr painful justice engrossed whether piqued perceive outlived settle share means remaining. Again northward advantage afraid effect kept be relied feebly precaution tastes preferred scarcely admire theirs compliment mean. Will several far gay. ",
+    date: Date.now() - 1000 * 60 * 60 * 24 * 2,
+    img_url: "https://i.imgur.com/6KEnnGF.jpg",
+    likes: [users[2]],
   },
 ];
 
