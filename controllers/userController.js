@@ -3,7 +3,6 @@ const UserRelationship = require("../models/userRelationship");
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const passport = require("passport");
-const { ObjectId } = require("mongodb");
 
 /* GET specific user */
 // input: params.userId
@@ -39,7 +38,7 @@ exports.user_post = [
     .trim()
     .isLength({ min: 1, max: 24 })
     .escape(),
-  body("pfp", "PFP must be a URL.").isURL(),
+  body("pfp", "PFP must be a URL.").optional().isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
     const { first_name, last_name, username, password, pfp } = req.body;
@@ -74,15 +73,13 @@ exports.user_post = [
 
       res.json({ userId });
     } catch (err) {
-      res.json(err);
+      res.json({ msg: err.message || err });
     }
   },
 ];
 
 // get relationships between user A and user B
 // creates UserRelationship in database if it doesn't exist
-// input: userIdA, userIdB
-// output: { userRelationshipA, userRelationshipB }
 async function getUserRelationships(userIdA, userIdB) {
   let userRelationshipA = { relating_user: userIdA, related_user: userIdB };
   let userRelationshipB = { relating_user: userIdB, related_user: userIdA };
@@ -114,10 +111,10 @@ async function getUserRelationships(userIdA, userIdB) {
   }
 }
 
-/* POST allow friendship (send or accept friend request) */
+/* PUT allow friendship (send or accept friend request) */
 // input: req.user, params.userId
 // output: { msg }
-exports.allow_user_friendship_post = [
+exports.allow_user_friendship_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
@@ -184,10 +181,10 @@ exports.allow_user_friendship_post = [
   },
 ];
 
-/* POST disallow friendship (unfriend, deny friend request or revoke friend request) */
+/* PUT disallow friendship (unfriend, deny friend request or revoke friend request) */
 // input: req.user, params.userId
 // output: { msg }
-exports.disallow_user_friendship_post = [
+exports.disallow_user_friendship_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {

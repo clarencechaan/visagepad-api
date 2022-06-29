@@ -27,11 +27,14 @@ router.get("/api/users/:userId/posts", post_controller.user_posts_get);
 /* POST create post */
 router.post("/api/users/:userId/posts", post_controller.user_posts_post);
 
-/* GET user's feed */
-router.get("/api/users/:userId/feed", post_controller.user_feed_get);
+/* GET requesting user's feed */
+router.get("/api/my-feed", post_controller.feed_get);
 
 /* GET specific post */
 router.get("/api/posts/:postId", post_controller.post_get);
+
+/* PUT toggle like specific post */
+router.put("/api/posts/:postId/like", post_controller.post_like_put);
 
 // USERS
 
@@ -41,16 +44,16 @@ router.get("/api/users/:userId", user_controller.user_get);
 /* POST create user */
 router.post("/api/users", user_controller.user_post);
 
-/* POST allow friendship (send or accept friend request) */
-router.post(
+/* PUT allow friendship (send or accept friend request) */
+router.put(
   "/api/users/:userId/allow-friendship",
-  user_controller.allow_user_friendship_post
+  user_controller.allow_user_friendship_put
 );
 
-/* POST disallow friendship (unfriend, deny friend request or revoke friend request) */
-router.post(
+/* PUT disallow friendship (unfriend, deny friend request or revoke friend request) */
+router.put(
   "/api/users/:userId/disallow-friendship",
-  user_controller.disallow_user_friendship_post
+  user_controller.disallow_user_friendship_put
 );
 
 /* GET friends list */
