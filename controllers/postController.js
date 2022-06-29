@@ -66,14 +66,17 @@ exports.feed_get = [
         relating_user: req.user._id,
         status: "Friends",
       });
-      const friends = relationships.map((relationship) => {
-        return relationship.related_user;
-      });
+      const friends = relationships.map(
+        (relationship) => relationship.related_user
+      );
 
       // get posts of each friend
       const posts = friends.length
         ? await Post.find({
-            $or: friends.map((friend) => ({ author: friend })),
+            $or: [
+              { author: req.user._id },
+              ...friends.map((friend) => ({ author: friend })),
+            ],
           }).sort({ date: -1 })
         : [];
       res.json(posts);

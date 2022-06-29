@@ -91,7 +91,7 @@ describe("GET user's feed works", () => {
     // send GET request with token
     const response = await request(app)
       .get("/api/my-feed")
-      .set("Authorization", "Bearer " + users[2].token);
+      .set("Authorization", "Bearer " + users[3].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(1);
@@ -115,12 +115,13 @@ describe("GET user's feed works", () => {
       .set("Authorization", "Bearer " + users[4].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
-    expect(response.body.length).toEqual(3);
+    expect(response.body.length).toEqual(4);
 
     // check posts are correct and are given in date desc order
     expect(response.body[0]._id).toEqual(posts[2]._id.toString());
     expect(response.body[1]._id).toEqual(posts[1]._id.toString());
-    expect(response.body[2]._id).toEqual(posts[0]._id.toString());
+    expect(response.body[2]._id).toEqual(posts[4]._id.toString());
+    expect(response.body[3]._id).toEqual(posts[0]._id.toString());
   });
 });
 

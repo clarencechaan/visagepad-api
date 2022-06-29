@@ -260,13 +260,16 @@ describe("GET friends list works", () => {
     expect(response.headers["content-type"]).toMatch(/json/);
 
     // check response gives friends
+    expect(response.body.length).toEqual(3);
     expect(
       response.body.some((friend) => friend._id === users[0]._id.toString())
     ).toBeTruthy();
     expect(
       response.body.some((friend) => friend._id === users[2]._id.toString())
     ).toBeTruthy();
-    expect(response.body.length).toEqual(2);
+    expect(
+      response.body.some((friend) => friend._id === users[3]._id.toString())
+    ).toBeTruthy();
   });
 
   test("user with 1 friend", async () => {
