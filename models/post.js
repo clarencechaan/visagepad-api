@@ -11,7 +11,9 @@ const PostSchema = new Schema({
     required: true,
   },
   img_url: { type: String },
-  likes: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
+  likes: [
+    { type: Schema.Types.ObjectId, ref: "User", default: [], required: true },
+  ],
 });
 
 //Export model

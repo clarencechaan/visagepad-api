@@ -349,7 +349,7 @@ describe("GET friends list works", () => {
   test("user with multiple friends", async () => {
     // send GET request with userId parameter
     const response = await request(app).get(
-      "/api/users/" + users[4]._id + "/friends"
+      `/api/users/${users[4]._id}/friends`
     );
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
@@ -367,7 +367,7 @@ describe("GET friends list works", () => {
   test("user with 1 friend", async () => {
     // send GET request with userId parameter
     const response = await request(app).get(
-      "/api/users/" + users[0]._id + "/friends"
+      `/api/users/${users[0]._id}/friends`
     );
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
@@ -382,7 +382,7 @@ describe("GET friends list works", () => {
   test("user with no friends", async () => {
     // send GET request with userId parameter
     const response = await request(app).get(
-      "/api/users/" + users[1]._id + "/friends"
+      `/api/users/${users[1]._id}/friends`
     );
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);

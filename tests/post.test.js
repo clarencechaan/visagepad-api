@@ -1,3 +1,4 @@
+const Post = require("../models/post");
 require("../passport");
 const {
   users,
@@ -32,21 +33,16 @@ afterAll(async () => {
 describe("GET user's posts works", () => {
   test("user with 1 post", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      "/api/users/" + users[2]._id + "/posts"
-    );
+    const response = await request(app).get(`/api/users/${users[2]._id}/posts`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(1);
     expect(response.body[0]._id).toEqual(posts[2]._id.toString());
-    console.log(response.body);
   });
 
   test("user with no posts", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      "/api/users/" + users[3]._id + "/posts"
-    );
+    const response = await request(app).get(`/api/users/${users[3]._id}/posts`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(0);
@@ -54,9 +50,7 @@ describe("GET user's posts works", () => {
 
   test("user with multiple posts", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      "/api/users/" + users[0]._id + "/posts"
-    );
+    const response = await request(app).get(`/api/users/${users[0]._id}/posts`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(2);
@@ -66,11 +60,30 @@ describe("GET user's posts works", () => {
 });
 
 test("POST create post works", async () => {
+  const post = {
+    content:
+      "Bed read whom satisfied early disposal. Formerly others furnished dear unaffected between enjoyed. Raillery quitting purse remaining men show happiness must seems game sex conduct. Hastened busy end formal sold basket wholly sentiments began. Determine friendship anxious ignorant thought insipidity finished brought before offered civil prevailed bachelor avoid visit.",
+    img_url: "https://i.imgur.com/1Dn4AvO.jpg",
+  };
+
   const response = await request(app)
     .post(`/api/users/${users[0]._id}/posts`)
-    .set("Authorization", "Bearer " + users[0].token);
+    .set("Authorization", "Bearer " + users[0].token)
+    .type("form")
+    .send(post);
   expect(response.status).toEqual(200);
   expect(response.headers["content-type"]).toMatch(/json/);
+
+  // check returned postId is a MongoDB ObjectID
+  expect(response.body.postId.match(/^[0-9a-fA-F]{24}$/)).toBeTruthy();
+
+  // check post is in database
+  const postId = response.body.postId;
+  const dbPost = await Post.findById(postId);
+  expect(dbPost.author).toEqual(users[0]._id);
+  expect(dbPost.content).toEqual(post.content);
+  expect(dbPost.img_url).toEqual(post.img_url);
+  expect(dbPost.likes).toEqual([]);
 });
 
 describe("GET user's feed works", () => {

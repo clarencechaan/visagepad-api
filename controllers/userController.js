@@ -44,7 +44,7 @@ exports.user_post = [
     const { first_name, last_name, username, password, pfp } = req.body;
 
     try {
-      // throw error if errors exist
+      // throw error if validation errors exist
       if (!errors.isEmpty()) {
         throw errors.array();
       }
@@ -53,7 +53,7 @@ exports.user_post = [
       const found = await User.findOne({ username: username });
       if (found) {
         res.json({
-          msg: "User with username `" + username + "` already exists",
+          msg: `User with username ${username} already exists`,
         });
         return;
       }

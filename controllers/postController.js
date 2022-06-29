@@ -1,5 +1,6 @@
 const Post = require("../models/post");
 const passport = require("passport");
+const { body, validationResult } = require("express-validator");
 
 /* GET user's posts (sorted by date descending) */
 // input: params.userId
@@ -18,9 +19,32 @@ exports.user_posts_get = async function (req, res, next) {
 // output: { postId }
 exports.user_posts_post = [
   passport.authenticate("jwt", { session: false }),
+  body("content", "Content must be between 1 and 10000 characters.")
+    .trim()
+    .isLength({ min: 1, max: 10000 })
+    .escape(),
+  body("img_url", "Image URL must be a URL.").optional().isURL(),
   async function (req, res, next) {
+    const errors = validationResult(req);
+    const { content, img_url } = req.body;
+
     try {
-      res.json({ msg: "hello" });
+      // throw error if validation errors exist
+      if (!errors.isEmpty()) {
+        throw errors.array();
+      }
+
+      const post = {
+        author: req.user._id,
+        content,
+        date: Date.now(),
+        img_url,
+        likes: [],
+      };
+
+      const postId = (await new Post(post).save())._id;
+
+      res.json({ postId });
     } catch (err) {
       res.json({ msg: err.message || err });
     }
