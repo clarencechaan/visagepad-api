@@ -90,15 +90,36 @@ exports.feed_get = [
 // input: params.postId
 // output: { author, content, date, img_url, likes }
 exports.post_get = async function (req, res, next) {
-  res.json({ msg: "GET specific post" });
+  try {
+    const postId = req.params.postId;
+    const post = await Post.findById(postId);
+    res.json(post);
+  } catch (err) {
+    res.json({ msg: err.message || err });
+  }
 };
 
 /* DELETE specific post */
 // input: req.user, params.postId
 // output: { msg }
-exports.post_delete = async function (req, res, next) {
-  res.json({ msg: "DELETE specific post" });
-};
+exports.post_delete = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const postId = req.params.postId;
+      const post = await Post.findById(postId);
+      console.log(post.author, req.user._id);
+      if (post.author.equals(req.user._id)) {
+        await Post.findByIdAndDelete(postId);
+        res.json({ msg: "Post successfully deleted." });
+      } else {
+        res.json({ msg: "You are not authorized to delete this post." });
+      }
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
 
 /* PUT toggle like specific post */
 // input: req.user, params.postId

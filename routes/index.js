@@ -33,6 +33,9 @@ router.get("/api/my-feed", post_controller.feed_get);
 /* GET specific post */
 router.get("/api/posts/:postId", post_controller.post_get);
 
+/* DELETE specific post */
+router.delete("/api/posts/:postId", post_controller.post_delete);
+
 /* PUT toggle like specific post */
 router.put("/api/posts/:postId/like", post_controller.post_like_put);
 

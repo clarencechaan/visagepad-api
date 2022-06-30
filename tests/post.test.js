@@ -125,9 +125,34 @@ describe("GET user's feed works", () => {
   });
 });
 
-test("GET specific post works", async () => {});
+test("GET specific post works", async () => {
+  // send GET request with postId parameter
+  const response = await request(app).get("/api/posts/" + posts[0]._id);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
+  expect(response.body._id).toEqual(posts[0]._id.toString());
+  // author, content, date, img_url, likes
+  expect(response.body.author).toEqual(posts[0].author._id.toString());
+  expect(response.body.content).toEqual(posts[0].content);
+  expect(new Date(response.body.date).getTime()).toEqual(posts[0].date);
+  expect(response.body.likes).toEqual(posts[0].likes);
+});
 
-test("DELETE specific post works", async () => {});
+test("DELETE specific post works", async () => {
+  console.log(posts[0]._id);
+  // send DELETE request with postId parameter and token
+  const response = await request(app)
+    .delete("/api/posts/" + posts[0]._id)
+    .set("Authorization", "Bearer " + users[0].token);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
+
+  // check post no longer exists
+  expect(await Post.findById(posts[0]._id)).toBeFalsy();
+
+  // revert changes in database
+  await new Post(posts[0]).save();
+});
 
 describe("PUT toggle like specific post", () => {
   test("like post", async () => {});
