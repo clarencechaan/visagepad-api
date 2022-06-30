@@ -138,7 +138,7 @@ test("GET specific post works", async () => {
   expect(response.body.likes).toEqual(posts[0].likes);
 });
 
-describe("DELETE specific post works", () => {
+describe("`DELETE` specific post works", () => {
   test("request is from author", async () => {
     // send DELETE request with postId parameter and token
     const response = await request(app)
@@ -149,6 +149,9 @@ describe("DELETE specific post works", () => {
 
     // check post no longer exists
     expect(await Post.findById(posts[0]._id)).toBeFalsy();
+
+    // check msg
+    expect(response.body.msg).toEqual("Post successfully deleted.");
 
     // revert changes in database
     await new Post(posts[0]).save();

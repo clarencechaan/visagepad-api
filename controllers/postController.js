@@ -18,7 +18,7 @@ exports.user_posts_get = async function (req, res, next) {
 };
 
 /* POST create post */
-// input: req.user, content, (img_url)
+// input: req.user, { content, (img_url) }
 // output: { postId }
 exports.user_posts_post = [
   passport.authenticate("jwt", { session: false }),
@@ -121,7 +121,7 @@ exports.post_delete = [
 ];
 
 /* PUT toggle like specific post */
-// input: req.user, params.postId, like
+// input: req.user, params.postId, { like }
 // output: { msg }
 exports.post_like_put = [
   passport.authenticate("jwt", { session: false }),

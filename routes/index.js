@@ -14,10 +14,7 @@ router.get("/api/posts/:postId/comments", comment_controller.post_comments_get);
 router.post("/api/posts/:postId/comments", comment_controller.comment_post);
 
 /* DELETE specific comment */
-router.delete(
-  "/api/posts/:postId/comments/:commentId",
-  comment_controller.comment_delete
-);
+router.delete("/api/comments/:commentId", comment_controller.comment_delete);
 
 // POSTS
 
