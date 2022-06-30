@@ -108,7 +108,6 @@ exports.post_delete = [
     try {
       const postId = req.params.postId;
       const post = await Post.findById(postId);
-      console.log(post.author, req.user._id);
       if (post.author.equals(req.user._id)) {
         await Post.findByIdAndDelete(postId);
         res.json({ msg: "Post successfully deleted." });
@@ -122,8 +121,25 @@ exports.post_delete = [
 ];
 
 /* PUT toggle like specific post */
-// input: req.user, params.postId
+// input: req.user, params.postId, like
 // output: { msg }
-exports.post_like_put = async function (req, res, next) {
-  res.json({ msg: "PUT like specific post" });
-};
+exports.post_like_put = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      if (req.body.like === "true") {
+        await Post.findByIdAndUpdate(req.params.postId, {
+          $addToSet: { likes: req.user._id },
+        });
+        res.json({ msg: "Post successfully liked." });
+      } else {
+        await Post.findByIdAndUpdate(req.params.postId, {
+          $pull: { likes: req.user._id },
+        });
+        res.json({ msg: "Post successfully unliked" });
+      }
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];

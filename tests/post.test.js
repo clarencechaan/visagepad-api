@@ -138,24 +138,75 @@ test("GET specific post works", async () => {
   expect(response.body.likes).toEqual(posts[0].likes);
 });
 
-test("DELETE specific post works", async () => {
-  console.log(posts[0]._id);
-  // send DELETE request with postId parameter and token
-  const response = await request(app)
-    .delete("/api/posts/" + posts[0]._id)
-    .set("Authorization", "Bearer " + users[0].token);
-  expect(response.status).toEqual(200);
-  expect(response.headers["content-type"]).toMatch(/json/);
+describe("DELETE specific post works", () => {
+  test("request is from author", async () => {
+    // send DELETE request with postId parameter and token
+    const response = await request(app)
+      .delete("/api/posts/" + posts[0]._id)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
 
-  // check post no longer exists
-  expect(await Post.findById(posts[0]._id)).toBeFalsy();
+    // check post no longer exists
+    expect(await Post.findById(posts[0]._id)).toBeFalsy();
 
-  // revert changes in database
-  await new Post(posts[0]).save();
+    // revert changes in database
+    await new Post(posts[0]).save();
+  });
+
+  test("request is not from author", async () => {
+    // send DELETE request with postId parameter and token
+    const response = await request(app)
+      .delete("/api/posts/" + posts[0]._id)
+      .set("Authorization", "Bearer " + users[1].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check post still exists
+    expect(await Post.findById(posts[0]._id)).toBeTruthy();
+
+    // check msg
+    expect(response.body.msg).toEqual(
+      "You are not authorized to delete this post."
+    );
+  });
 });
 
 describe("PUT toggle like specific post", () => {
-  test("like post", async () => {});
+  test("like post", async () => {
+    // send PUT request with postId parameter and token
+    const response = await request(app)
+      .put(`/api/posts/${posts[0]._id}/like`)
+      .set("Authorization", "Bearer " + users[1].token)
+      .type("form")
+      .send({ like: true });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
 
-  test("unlike post", async () => {});
+    // check post has been liked
+    expect((await Post.findById(posts[0]._id)).likes).toEqual([users[1]._id]);
+
+    // revert changes in database
+    await Post.findByIdAndUpdate(posts[0]._id, {
+      $pull: { likes: users[1]._id },
+    });
+  });
+  test("unlike post", async () => {
+    // send PUT request with postId parameter and token
+    const response = await request(app)
+      .put(`/api/posts/${posts[4]._id}/like`)
+      .set("Authorization", "Bearer " + users[2].token)
+      .type("form")
+      .send({ like: false });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check post has been unliked
+    expect((await Post.findById(posts[4]._id)).likes).toEqual([]);
+
+    // revert changes in database
+    await Post.findByIdAndUpdate(posts[4]._id, {
+      $push: { likes: users[2]._id },
+    });
+  });
 });
