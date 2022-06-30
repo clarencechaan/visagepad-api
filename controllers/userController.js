@@ -126,52 +126,44 @@ exports.allow_user_friendship_put = [
       );
 
       let msg = "";
-      if (
-        userRelationshipA.status === "None" &&
-        userRelationshipA.status === "None"
-      ) {
-        // users are not friends
-        userRelationshipA.status = "Requesting";
-        userRelationshipB.status = "Requestee";
-        // save changes to database
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipA._id,
-          userRelationshipA
-        );
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipB._id,
-          userRelationshipB
-        );
-        msg = "Friend request sent.";
-      } else if (
-        userRelationshipA.status === "Requestee" &&
-        userRelationshipB.status === "Requesting"
-      ) {
-        // user is the recipient of a friend request
-        userRelationshipA.status = "Friends";
-        userRelationshipB.status = "Friends";
-        // save changes to database
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipA._id,
-          userRelationshipA
-        );
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipB._id,
-          userRelationshipB
-        );
-        msg = "Accepted friend request.";
-      } else if (
-        userRelationshipA.status === "Requesting" &&
-        userRelationshipB.status === "Requestee"
-      ) {
-        // user is already requesting friend
-        msg = "Friend request already sent.";
-      } else if (
-        userRelationshipA.status === "Friends" &&
-        userRelationshipB.status === "Friends"
-      ) {
-        // users are already friends
-        msg = "You are already friends with this user.";
+      switch ((userRelationshipA.status, userRelationshipB.status)) {
+        case ("None", "None"):
+          // users are not friends
+          userRelationshipA.status = "Requesting";
+          userRelationshipB.status = "Requestee";
+          // save changes to database
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipA._id,
+            userRelationshipA
+          );
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipB._id,
+            userRelationshipB
+          );
+          msg = "Friend request sent.";
+          break;
+        case ("Requestee", "Requesting"):
+          // user is the recipient of a friend request
+          userRelationshipA.status = "Friends";
+          userRelationshipB.status = "Friends";
+          // save changes to database
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipA._id,
+            userRelationshipA
+          );
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipB._id,
+            userRelationshipB
+          );
+          msg = "Accepted friend request.";
+          break;
+        case ("Requesting", "Requestee"):
+          // user is already requesting friend
+          msg = "Friend request already sent.";
+          break;
+        case ("Friends", "Friends"):
+          // users are already friends
+          msg = "You are already friends with this user.";
       }
 
       res.json({ msg });
@@ -196,63 +188,55 @@ exports.disallow_user_friendship_put = [
       );
 
       let msg = "";
-      if (
-        userRelationshipA.status === "Friends" &&
-        userRelationshipA.status === "Friends"
-      ) {
-        // users are friends
-        userRelationshipA.status = "None";
-        userRelationshipB.status = "None";
-        // save changes to database
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipA._id,
-          userRelationshipA
-        );
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipB._id,
-          userRelationshipB
-        );
-        msg = "Unfriended user.";
-      } else if (
-        userRelationshipA.status === "Requestee" &&
-        userRelationshipB.status === "Requesting"
-      ) {
-        // user is the recipient of a friend request
-        userRelationshipA.status = "None";
-        userRelationshipB.status = "None";
-        // save changes to database
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipA._id,
-          userRelationshipA
-        );
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipB._id,
-          userRelationshipB
-        );
-        msg = "Denied friend request.";
-      } else if (
-        userRelationshipA.status === "Requesting" &&
-        userRelationshipB.status === "Requestee"
-      ) {
-        // user is requesting friend
-        userRelationshipA.status = "None";
-        userRelationshipB.status = "None";
-        // save changes to database
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipA._id,
-          userRelationshipA
-        );
-        await UserRelationship.findByIdAndUpdate(
-          userRelationshipB._id,
-          userRelationshipB
-        );
-        msg = "Revoked friend request.";
-      } else if (
-        userRelationshipA.status === "None" &&
-        userRelationshipB.status === "None"
-      ) {
-        // users are not friends
-        msg = "You are already not friends with this user.";
+      switch ((userRelationshipA.status, userRelationshipB.status)) {
+        case ("None", "None"):
+          // users are not friends
+          msg = "You are already not friends with this user.";
+          break;
+        case ("Requestee", "Requesting"):
+          // user is the recipient of a friend request
+          userRelationshipA.status = "None";
+          userRelationshipB.status = "None";
+          // save changes to database
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipA._id,
+            userRelationshipA
+          );
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipB._id,
+            userRelationshipB
+          );
+          msg = "Denied friend request.";
+          break;
+        case ("Requesting", "Requestee"):
+          // user is requesting friend
+          userRelationshipA.status = "None";
+          userRelationshipB.status = "None";
+          // save changes to database
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipA._id,
+            userRelationshipA
+          );
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipB._id,
+            userRelationshipB
+          );
+          msg = "Revoked friend request.";
+          break;
+        case ("Friends", "Friends"):
+          // users are friends
+          userRelationshipA.status = "None";
+          userRelationshipB.status = "None";
+          // save changes to database
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipA._id,
+            userRelationshipA
+          );
+          await UserRelationship.findByIdAndUpdate(
+            userRelationshipB._id,
+            userRelationshipB
+          );
+          msg = "Unfriended user.";
       }
 
       res.json({ msg });
