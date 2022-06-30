@@ -1,10 +1,17 @@
 const Comment = require("../models/comment");
 
-/* GET post's comments */
+/* GET post's comments (date ascending order) */
 // input: params.postId
 // output: [{ author, message, date }, ...]
 exports.post_comments_get = async function (req, res, next) {
-  res.json({ msg: "GET post's comments" });
+  try {
+    const comments = await Comment.find({ post: req.params.postId }).sort({
+      date: 1,
+    });
+    res.json(comments);
+  } catch (err) {
+    res.json({ msg: err.message || err });
+  }
 };
 
 /* POST create comment on post */

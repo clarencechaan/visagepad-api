@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const UserRelationship = require("../models/userRelationship");
 const Post = require("../models/post");
+const Comment = require("../models/comment");
 const request = require("supertest");
 
 // sample data
@@ -138,6 +139,29 @@ let posts = [
   },
 ];
 
+let comments = [
+  {
+    post: posts[0],
+    author: users[1],
+    message:
+      "Deal speaking have morning consulted admitting matters manners desirous minutes add doubt furniture.",
+    date: posts[0].date + 1000 * 60 * 120,
+  },
+  {
+    post: posts[0],
+    author: users[0],
+    message:
+      "Pulled pulled old known forth money rapid entrance discourse trees.",
+    date: posts[0].date + 1000 * 60 * 38,
+  },
+  {
+    post: posts[1],
+    author: users[2],
+    message: "Bore distrusts tastes thing might extended five.",
+    date: posts[1].date + 1000 * 60 * 60 * 3,
+  },
+];
+
 // populate the database with the sample data
 async function populateDb() {
   // save users and set _id
@@ -159,6 +183,11 @@ async function populateDb() {
   for (const post of posts) {
     post._id = (await new Post(post).save())._id;
   }
+
+  // save comments and set _id
+  for (const comment of comments) {
+    comment._id = (await new Comment(comment).save())._id;
+  }
 }
 
 // set token property of each user
@@ -174,4 +203,11 @@ async function setTokens(app) {
   }
 }
 
-module.exports = { users, relationships, posts, populateDb, setTokens };
+module.exports = {
+  users,
+  relationships,
+  posts,
+  comments,
+  populateDb,
+  setTokens,
+};
