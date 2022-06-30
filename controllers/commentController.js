@@ -26,7 +26,14 @@ exports.comment_post = [
     .isLength({ min: 1, max: 2000 })
     .escape(),
   async function (req, res, next) {
+    const errors = validationResult(req);
+
     try {
+      // throw error if validation errors exist
+      if (!errors.isEmpty()) {
+        throw errors.array();
+      }
+
       const commentId = (
         await new Comment({
           post: req.params.postId,
