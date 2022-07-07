@@ -21,9 +21,9 @@ exports.post_comments_get = async function (req, res, next) {
 // output: { commentId }
 exports.comment_post = [
   passport.authenticate("jwt", { session: false }),
-  body("message", "Message must be between 1 and 2000 characters.")
+  body("message", "Message must be between 1 and 1500 characters.")
     .trim()
-    .isLength({ min: 1, max: 2000 })
+    .isLength({ min: 1, max: 1500 })
     .escape(),
   async function (req, res, next) {
     const errors = validationResult(req);

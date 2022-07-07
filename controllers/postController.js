@@ -22,9 +22,9 @@ exports.user_posts_get = async function (req, res, next) {
 // output: { postId }
 exports.user_posts_post = [
   passport.authenticate("jwt", { session: false }),
-  body("content", "Content must be between 1 and 10000 characters.")
+  body("content", "Content must be between 1 and 1500 characters.")
     .trim()
-    .isLength({ min: 1, max: 10000 })
+    .isLength({ min: 1, max: 1500 })
     .escape(),
   body("img_url", "Image URL must be a URL.").optional().isURL(),
   async function (req, res, next) {
