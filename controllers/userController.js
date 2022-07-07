@@ -22,13 +22,13 @@ exports.user_get = async function (req, res, next) {
 // input: { first_name, last_name, username, password, pfp }
 // output: { userId }
 exports.user_post = [
-  body("first_name", "First name must be between 1 and 72 characters.")
+  body("first_name", "First name must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 72 })
+    .isLength({ min: 1, max: 24 })
     .escape(),
-  body("last_name", "Last name must be between 1 and 72 characters.")
+  body("last_name", "Last name must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 72 })
+    .isLength({ min: 1, max: 24 })
     .escape(),
   body("username", "Username must be between 1 and 24 characters.")
     .trim()
