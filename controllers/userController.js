@@ -306,3 +306,28 @@ exports.mutuals_get = [
     }
   },
 ];
+
+/* GET friend requests */
+// input: req.user
+// output: [{ username, first_name, last_name, pfp }, ...]
+exports.friend_requests_get = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const relationships = await UserRelationship.find({
+        relating_user: req.user._id,
+        status: "Requestee",
+      })
+        .select("related_user")
+        .populate("related_user", "username first_name last_name pfp");
+
+      const friendRequests = relationships.map((relationship) => {
+        return relationship.related_user;
+      });
+
+      res.json(friendRequests);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];

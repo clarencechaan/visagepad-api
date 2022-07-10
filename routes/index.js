@@ -62,4 +62,7 @@ router.get("/api/users/:userId/friends", user_controller.friends_get);
 /* GET mutual friends */
 router.get("/api/users/:userId/mutuals", user_controller.mutuals_get);
 
+/* GET friend requests */
+router.get("/api/friend-requests", user_controller.friend_requests_get);
+
 module.exports = router;

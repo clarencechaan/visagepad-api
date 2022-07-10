@@ -302,7 +302,7 @@ describe("GET friends list works", () => {
 
 describe("GET mutual friends list works", () => {
   test("users with multiple mutuals", async () => {
-    // send GET request with userId parameter
+    // send GET request with userId parameter and token
     const response = await request(app)
       .get(`/api/users/${users[4]._id}/mutuals`)
       .set("Authorization", "Bearer " + users[5].token);
@@ -316,7 +316,7 @@ describe("GET mutual friends list works", () => {
   });
 
   test("users with 1 mutual", async () => {
-    // send GET request with userId parameter
+    // send GET request with userId parameter and token
     const response = await request(app)
       .get(`/api/users/${users[2]._id}/mutuals`)
       .set("Authorization", "Bearer " + users[0].token);
@@ -329,10 +329,51 @@ describe("GET mutual friends list works", () => {
   });
 
   test("users with no mutual", async () => {
-    // send GET request with userId parameter
+    // send GET request with userId parameter and token
     const response = await request(app)
       .get(`/api/users/${users[4]._id}/mutuals`)
       .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives empty array
+    expect(response.body).toEqual([]);
+  });
+});
+
+describe("GET friend requests works", () => {
+  test("user with multiple friend request", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/friend-requests`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives friend requests
+    expect(response.body.length).toEqual(2);
+    expect(response.body[0]._id).toEqual(users[3]._id.toString());
+    expect(response.body[1]._id).toEqual(users[5]._id.toString());
+  });
+
+  test("user with 1 friend request", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/friend-requests`)
+      .set("Authorization", "Bearer " + users[2].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives friend requests
+    expect(response.body.length).toEqual(1);
+    expect(response.body[0]._id).toEqual(users[0]._id.toString());
+  });
+
+  test("user with no friend requests", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/friend-requests`)
+      .set("Authorization", "Bearer " + users[1].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
 

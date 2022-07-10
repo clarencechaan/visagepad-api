@@ -120,6 +120,16 @@ let relationships = [
     related_user: users[5],
     status: "Friends",
   },
+  {
+    relating_user: users[5],
+    related_user: users[0],
+    status: "Requesting",
+  },
+  {
+    relating_user: users[0],
+    related_user: users[5],
+    status: "Requestee",
+  },
 ];
 
 let posts = [
