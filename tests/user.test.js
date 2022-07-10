@@ -299,3 +299,44 @@ describe("GET friends list works", () => {
     expect(response.body.length).toEqual(0);
   });
 });
+
+describe("GET mutual friends list works", () => {
+  test("users with multiple mutuals", async () => {
+    // send GET request with userId parameter
+    const response = await request(app)
+      .get(`/api/users/${users[4]._id}/mutuals`)
+      .set("Authorization", "Bearer " + users[5].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives mutual friends
+    expect(response.body.length).toEqual(2);
+    expect(response.body[0]._id).toEqual(users[2]._id.toString());
+    expect(response.body[1]._id).toEqual(users[3]._id.toString());
+  });
+
+  test("users with 1 mutual", async () => {
+    // send GET request with userId parameter
+    const response = await request(app)
+      .get(`/api/users/${users[2]._id}/mutuals`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives mutual friends
+    expect(response.body.length).toEqual(1);
+    expect(response.body[0]._id).toEqual(users[4]._id.toString());
+  });
+
+  test("users with no mutual", async () => {
+    // send GET request with userId parameter
+    const response = await request(app)
+      .get(`/api/users/${users[4]._id}/mutuals`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check response gives empty array
+    expect(response.body).toEqual([]);
+  });
+});

@@ -39,6 +39,12 @@ let users = [
     username: "hpotter5",
     plaintext_password: "hogwarts",
   },
+  {
+    first_name: "Kendrick",
+    last_name: "Lamar",
+    username: "kdot",
+    plaintext_password: "goodkidmaadcity",
+  },
 ];
 
 let relationships = [
@@ -92,6 +98,26 @@ let relationships = [
   {
     relating_user: users[4],
     related_user: users[3],
+    status: "Friends",
+  },
+  {
+    relating_user: users[5],
+    related_user: users[2],
+    status: "Friends",
+  },
+  {
+    relating_user: users[2],
+    related_user: users[5],
+    status: "Friends",
+  },
+  {
+    relating_user: users[5],
+    related_user: users[3],
+    status: "Friends",
+  },
+  {
+    relating_user: users[3],
+    related_user: users[5],
     status: "Friends",
   },
 ];

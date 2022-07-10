@@ -265,3 +265,44 @@ exports.friends_get = async function (req, res, next) {
     res.json({ msg: err.message || err });
   }
 };
+
+/* GET mutual friends list */
+// input: req.user, params.userId
+// output: [{ username, first_name, last_name, pfp }, ...]
+exports.mutuals_get = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const relationshipsA = await UserRelationship.find({
+        relating_user: req.user._id,
+        status: "Friends",
+      })
+        .select("related_user")
+        .populate("related_user", "username first_name last_name pfp");
+      const relationshipsB = await UserRelationship.find({
+        relating_user: req.params.userId,
+        status: "Friends",
+      })
+        .select("related_user")
+        .populate("related_user", "username first_name last_name pfp");
+
+      const friendsA = relationshipsA.map((relationship) => {
+        return relationship.related_user;
+      });
+      const friendsB = relationshipsB.map((relationship) => {
+        return relationship.related_user;
+      });
+
+      let mutuals = [];
+      for (const friendA of friendsA) {
+        if (friendsB.some((b) => b._id.toString() === friendA._id.toString())) {
+          mutuals.push(friendA);
+        }
+      }
+
+      res.json(mutuals);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
