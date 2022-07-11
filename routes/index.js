@@ -16,6 +16,15 @@ router.post("/api/posts/:postId/comments", comment_controller.comment_post);
 /* DELETE specific comment */
 router.delete("/api/comments/:commentId", comment_controller.comment_delete);
 
+/* PUT edit comment on post */
+router.put("/api/comments/:commentId", comment_controller.comment_put);
+
+/* PUT toggle like comment on post */
+// router.put(
+//   "/api/comments/:commentId/like",
+//   comment_controller.comment_like_put
+// );
+
 // POSTS
 
 /* GET user's posts */

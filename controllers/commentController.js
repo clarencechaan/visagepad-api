@@ -69,3 +69,37 @@ exports.comment_delete = [
     }
   },
 ];
+
+/* PUT edit comment on post */
+// input: params.commentId req.user, { message }
+// output: { msg }
+exports.comment_put = [
+  passport.authenticate("jwt", { session: false }),
+  body("message", "Message must be between 1 and 1500 characters.")
+    .trim()
+    .isLength({ min: 1, max: 1500 })
+    .escape(),
+  async function (req, res, next) {
+    const errors = validationResult(req);
+
+    try {
+      // throw error if validation errors exist
+      if (!errors.isEmpty()) {
+        throw errors.array();
+      }
+
+      const commentId = req.params.commentId;
+      const comment = await Comment.findById(commentId);
+      if (comment.author.equals(req.user._id)) {
+        await Comment.findByIdAndUpdate(commentId, {
+          message: req.body.message,
+        });
+        res.json({ msg: "Comment successfully edited." });
+      } else {
+        res.json({ msg: "You are not authorized to edit this comment." });
+      }
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];

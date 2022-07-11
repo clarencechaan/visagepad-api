@@ -102,7 +102,7 @@ test("POST create comment on post works", async () => {
 
 describe("DELETE specific comment works", () => {
   test("request is from author", async () => {
-    // send DELETE request with postId parameter and token
+    // send DELETE request with commentId parameter and token
     const response = await request(app)
       .delete("/api/comments/" + comments[0]._id)
       .set("Authorization", "Bearer " + users[1].token);
@@ -120,7 +120,7 @@ describe("DELETE specific comment works", () => {
   });
 
   test("request is not from author", async () => {
-    // send DELETE request with postId parameter and token
+    // send DELETE request with commentId parameter and token
     const response = await request(app)
       .delete("/api/comments/" + comments[0]._id)
       .set("Authorization", "Bearer " + users[2].token);
@@ -135,4 +135,46 @@ describe("DELETE specific comment works", () => {
       "You are not authorized to delete this comment."
     );
   });
+});
+
+describe("PUT edit comment works", () => {
+  test("request is from author", async () => {
+    // send PUT request with commentId parameter and token
+    const response = await request(app)
+      .put("/api/comments/" + comments[0]._id)
+      .set("Authorization", "Bearer " + users[1].token)
+      .type("form")
+      .send({ message: "This is an updated message." });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check comment has changed
+    const message = (await Comment.findById(comments[0]._id)).message;
+    expect(message).toEqual("This is an updated message.");
+
+    // check msg
+    expect(response.body.msg).toEqual("Comment successfully edited.");
+
+    // revert changes in database
+    await Comment.findByIdAndUpdate(comments[0]._id, {
+      message: comments[0].message,
+    });
+  });
+
+  // test("request is not from author", async () => {
+  //   // send PUT request with commentId parameter and token
+  //   const response = await request(app)
+  //     .put("/api/comments/" + comments[0]._id)
+  //     .set("Authorization", "Bearer " + users[2].token);
+  //   expect(response.status).toEqual(200);
+  //   expect(response.headers["content-type"]).toMatch(/json/);
+
+  //   // check comment still exists
+  //   expect(await Comment.findById(comments[0]._id)).toBeTruthy();
+
+  //   // check msg
+  //   expect(response.body.msg).toEqual(
+  //     "You are not authorized to delete this comment."
+  //   );
+  // });
 });
