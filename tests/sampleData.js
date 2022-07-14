@@ -189,6 +189,7 @@ let comments = [
     message:
       "Pulled pulled old known forth money rapid entrance discourse trees.",
     date: posts[0].date + 1000 * 60 * 38,
+    likes: [users[1]],
   },
   {
     post: posts[1],

@@ -11,6 +11,9 @@ const CommentSchema = new Schema({
     default: Date.now,
     required: true,
   },
+  likes: [
+    { type: Schema.Types.ObjectId, ref: "User", default: [], required: true },
+  ],
 });
 
 //Export model

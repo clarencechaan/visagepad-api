@@ -71,7 +71,7 @@ exports.comment_delete = [
 ];
 
 /* PUT edit comment on post */
-// input: params.commentId req.user, { message }
+// input: params.commentId, req.user, { message }
 // output: { msg }
 exports.comment_put = [
   passport.authenticate("jwt", { session: false }),
@@ -97,6 +97,30 @@ exports.comment_put = [
         res.json({ msg: "Comment successfully edited." });
       } else {
         res.json({ msg: "You are not authorized to edit this comment." });
+      }
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* PUT toggle like on comment */
+// input: params.commentId, req.user, { like }
+// output: { msg }
+exports.comment_like_put = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      if (req.body.like === "true") {
+        await Comment.findByIdAndUpdate(req.params.commentId, {
+          $addToSet: { likes: req.user._id },
+        });
+        res.json({ msg: "Comment successfully liked." });
+      } else {
+        await Comment.findByIdAndUpdate(req.params.commentId, {
+          $pull: { likes: req.user._id },
+        });
+        res.json({ msg: "Comment successfully unliked." });
       }
     } catch (err) {
       res.json({ msg: err.message || err });

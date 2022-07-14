@@ -136,7 +136,7 @@ exports.post_like_put = [
         await Post.findByIdAndUpdate(req.params.postId, {
           $pull: { likes: req.user._id },
         });
-        res.json({ msg: "Post successfully unliked" });
+        res.json({ msg: "Post successfully unliked." });
       }
     } catch (err) {
       res.json({ msg: err.message || err });

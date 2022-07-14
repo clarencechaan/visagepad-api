@@ -186,6 +186,9 @@ describe("PUT toggle like specific post", () => {
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
 
+    // check msg
+    expect(response.body.msg).toEqual("Post successfully liked.");
+
     // check post has been liked
     expect((await Post.findById(posts[0]._id)).likes).toEqual([users[1]._id]);
 
@@ -203,6 +206,9 @@ describe("PUT toggle like specific post", () => {
       .send({ like: false });
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check msg
+    expect(response.body.msg).toEqual("Post successfully unliked.");
 
     // check post has been unliked
     expect((await Post.findById(posts[4]._id)).likes).toEqual([]);

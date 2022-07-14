@@ -20,10 +20,10 @@ router.delete("/api/comments/:commentId", comment_controller.comment_delete);
 router.put("/api/comments/:commentId", comment_controller.comment_put);
 
 /* PUT toggle like comment on post */
-// router.put(
-//   "/api/comments/:commentId/like",
-//   comment_controller.comment_like_put
-// );
+router.put(
+  "/api/comments/:commentId/like",
+  comment_controller.comment_like_put
+);
 
 // POSTS
 
