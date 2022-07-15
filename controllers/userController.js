@@ -118,11 +118,11 @@ exports.allow_user_friendship_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
-      const requestingUserId = req.user._id;
-      const requesteeUserId = req.params.userId;
+      const relatingUserId = req.user._id;
+      const relatedUserId = req.params.userId;
       let { userRelationshipA, userRelationshipB } = await getUserRelationships(
-        requestingUserId,
-        requesteeUserId
+        relatingUserId,
+        relatedUserId
       );
 
       let msg = "";
@@ -180,11 +180,11 @@ exports.disallow_user_friendship_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
-      const requestingUserId = req.user._id;
-      const requesteeUserId = req.params.userId;
+      const relatingUserId = req.user._id;
+      const relatedUserId = req.params.userId;
       let { userRelationshipA, userRelationshipB } = await getUserRelationships(
-        requestingUserId,
-        requesteeUserId
+        relatingUserId,
+        relatedUserId
       );
 
       let msg = "";
@@ -326,6 +326,25 @@ exports.friend_requests_get = [
       });
 
       res.json(friendRequests);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* GET relationship status of user */
+// input: req.user, params.userId
+// output: { status }
+exports.relationship_get = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const relatingUserId = req.user._id;
+      const relatedUserId = req.params.userId;
+      const { userRelationshipA, userRelationshipB } =
+        await getUserRelationships(relatingUserId, relatedUserId);
+
+      res.json({ status: userRelationshipB.status });
     } catch (err) {
       res.json({ msg: err.message || err });
     }

@@ -100,6 +100,31 @@ describe("PUT allow friendship works", () => {
     });
   });
 
+  test("2 users who are already not friends, without a user relationship in db (send friend request)", async () => {
+    const resNotFriends = await request(app)
+      .put(`/api/users/${users[2]._id}/allow-friendship`)
+      .set("Authorization", "Bearer " + users[1].token);
+    expect(resNotFriends.status).toEqual(200);
+    expect(resNotFriends.headers["content-type"]).toMatch(/json/);
+    expect(resNotFriends.body).toEqual({ msg: "Friend request sent." });
+
+    // check user relationship is saved to database
+    const relationshipA = await UserRelationship.findOne({
+      relating_user: users[1]._id,
+      related_user: users[2]._id,
+    });
+    const relationshipB = await UserRelationship.findOne({
+      relating_user: users[2]._id,
+      related_user: users[1]._id,
+    });
+    expect(relationshipA.status).toEqual("Requesting");
+    expect(relationshipB.status).toEqual("Requestee");
+
+    // revert changes in database
+    await UserRelationship.findByIdAndDelete(relationshipA._id);
+    await UserRelationship.findByIdAndDelete(relationshipB._id);
+  });
+
   test("user who has been sent a friend request by the other (accept friend request)", async () => {
     const resRequestee = await request(app)
       .put(`/api/users/${users[3]._id}/allow-friendship`)
@@ -248,6 +273,17 @@ describe("PUT disallow friendship works", () => {
       msg: "You are already not friends with this user.",
     });
   });
+
+  test("2 users who are already not friends, without a user relationship in db (no action)", async () => {
+    const resNotFriends = await request(app)
+      .put(`/api/users/${users[2]._id}/disallow-friendship`)
+      .set("Authorization", "Bearer " + users[1].token);
+    expect(resNotFriends.status).toEqual(200);
+    expect(resNotFriends.headers["content-type"]).toMatch(/json/);
+    expect(resNotFriends.body).toEqual({
+      msg: "You are already not friends with this user.",
+    });
+  });
 });
 
 describe("GET friends list works", () => {
@@ -379,5 +415,67 @@ describe("GET friend requests works", () => {
 
     // check response gives empty array
     expect(response.body).toEqual([]);
+  });
+});
+
+describe("GET relationship status of user works", () => {
+  test("user who is not a friend", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[1]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("None");
+  });
+
+  test("user who is not a friend, without a user relationship in db", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[2]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[1].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("None");
+  });
+
+  test("user who has sent a friend request", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[3]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("Requesting");
+  });
+
+  test("user who has been sent a friend request", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[2]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("Requestee");
+  });
+
+  test("user who is a friend", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[4]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("Friends");
   });
 });
