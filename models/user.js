@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
   pfp: { type: String },
+  cover: { type: String },
 });
 
 //Export model

@@ -39,9 +39,10 @@ exports.user_post = [
     .isLength({ min: 1, max: 24 })
     .escape(),
   body("pfp", "PFP must be a URL.").optional().isURL(),
+  body("cover", "Cover photo must be a URL.").optional().isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
-    const { first_name, last_name, username, password, pfp } = req.body;
+    const { first_name, last_name, username, password, pfp, cover } = req.body;
 
     try {
       // throw error if validation errors exist
@@ -66,6 +67,7 @@ exports.user_post = [
         username,
         password: hashedPassword,
         pfp,
+        cover,
       });
 
       // Save user
@@ -345,6 +347,24 @@ exports.relationship_get = [
         await getUserRelationships(relatingUserId, relatedUserId);
 
       res.json({ status: userRelationshipB.status });
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* PUT update profile picture or cover photo */
+// input: req.user, { pfp, cover }
+// output: { msg }
+exports.user_photo_put = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      await User.findByIdAndUpdate(req.user._id, {
+        pfp: req.body.pfp,
+        cover: req.body.cover,
+      });
+      res.json({ msg: "Photo successfully updated." });
     } catch (err) {
       res.json({ msg: err.message || err });
     }

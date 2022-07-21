@@ -44,6 +44,8 @@ test("POST create user works", async () => {
     last_name: "Simpson",
     username: "hojo742",
     password: "donuts",
+    pfp: "https://i.imgur.com/ZaXjTYr.jpeg",
+    cover: "https://i.imgur.com/lpz9lAS.jpeg",
   };
 
   const response = await request(app)
@@ -62,6 +64,8 @@ test("POST create user works", async () => {
   expect(dbUser.first_name).toEqual(user.first_name);
   expect(dbUser.last_name).toEqual(user.last_name);
   expect(dbUser.username).toEqual(user.username);
+  expect(dbUser.pfp).toEqual(user.pfp);
+  expect(dbUser.cover).toEqual(user.cover);
 
   // check password is hashed and matches
   expect(await bcrypt.compare(user.password, dbUser.password)).toBeTruthy();
@@ -72,6 +76,7 @@ test("POST create user works", async () => {
 
 describe("PUT allow friendship works", () => {
   test("2 users who are not friends (send friend request)", async () => {
+    // send PUT request with userId parameter and token
     const resNotFriends = await request(app)
       .put(`/api/users/${users[1]._id}/allow-friendship`)
       .set("Authorization", "Bearer " + users[0].token);
@@ -477,5 +482,45 @@ describe("GET relationship status of user works", () => {
 
     // check status given is correct
     expect(response.body.status).toEqual("Friends");
+  });
+});
+
+describe("PUT update profile picture or cover photo works", () => {
+  test("update profile picture works", async () => {
+    // send PUT request with token and pfp
+    const response = await request(app)
+      .put(`/api/update-photo`)
+      .set("Authorization", "Bearer " + users[1].token)
+      .type("form")
+      .send({ pfp: "https://i.imgur.com/ZaXjTYr.jpeg" });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body).toEqual({ msg: "Photo successfully updated." });
+
+    // check user with updated pfp is saved to database
+    const user = await User.findById(users[1]._id);
+    expect(user.pfp).toEqual("https://i.imgur.com/ZaXjTYr.jpeg");
+
+    // revert changes in database
+    await User.findByIdAndUpdate(users[1]._id, users[1]);
+  });
+
+  test("update cover photo works", async () => {
+    // send PUT request with token and cover
+    const response = await request(app)
+      .put(`/api/update-photo`)
+      .set("Authorization", "Bearer " + users[1].token)
+      .type("form")
+      .send({ cover: "https://i.imgur.com/lpz9lAS.jpeg" });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.body).toEqual({ msg: "Photo successfully updated." });
+
+    // check user with updated pfp is saved to
+    const user = await User.findById(users[1]._id);
+    expect(user.cover).toEqual("https://i.imgur.com/lpz9lAS.jpeg");
+
+    // revert changes in database
+    await User.findByIdAndUpdate(users[1]._id, users[1]);
   });
 });

@@ -14,6 +14,7 @@ let users = [
     username: "theapartment",
     plaintext_password: "pass",
     pfp: "https://i.imgur.com/XUlRwHK.png",
+    cover: "https://i.imgur.com/NNChuCD.jpeg",
   },
   {
     first_name: "Alex",

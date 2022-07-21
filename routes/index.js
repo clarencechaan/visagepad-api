@@ -77,4 +77,7 @@ router.get("/api/friend-requests", user_controller.friend_requests_get);
 /* GET relationship status of user */
 router.get("/api/users/:userId/relationship", user_controller.relationship_get);
 
+/* PUT update user profile picture or cover photo */
+router.put("/api/update-photo", user_controller.user_photo_put);
+
 module.exports = router;
