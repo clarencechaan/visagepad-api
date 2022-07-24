@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 
 passport.use(
   new LocalStrategy(function (username, password, cb) {
+    username = username.toLowerCase();
     return User.findOne({ username })
       .then((user) => {
         if (!user) {

@@ -42,7 +42,7 @@ exports.user_post = [
   body("cover", "Cover photo must be a URL.").optional().isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
-    const { username, password, pfp, cover } = req.body;
+    const { password, pfp, cover } = req.body;
     // capitalize first and last name
     const first_name =
       req.body.first_name[0].toUpperCase() +
@@ -50,6 +50,7 @@ exports.user_post = [
     const last_name =
       req.body.last_name[0].toUpperCase() +
       req.body.last_name.substring(1).toLowerCase();
+    const username = req.body.username.toLowerCase();
 
     try {
       // throw error if validation errors exist
