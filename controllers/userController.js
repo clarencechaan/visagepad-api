@@ -42,7 +42,14 @@ exports.user_post = [
   body("cover", "Cover photo must be a URL.").optional().isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
-    const { first_name, last_name, username, password, pfp, cover } = req.body;
+    const { username, password, pfp, cover } = req.body;
+    // capitalize first and last name
+    const first_name =
+      req.body.first_name[0].toUpperCase() +
+      req.body.first_name.substring(1).toLowerCase();
+    const last_name =
+      req.body.last_name[0].toUpperCase() +
+      req.body.last_name.substring(1).toLowerCase();
 
     try {
       // throw error if validation errors exist
@@ -54,7 +61,7 @@ exports.user_post = [
       const found = await User.findOne({ username: username });
       if (found) {
         res.json({
-          msg: `User with username ${username} already exists`,
+          msg: `User with username "${username}" already exists`,
         });
         return;
       }

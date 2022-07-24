@@ -40,8 +40,8 @@ test("GET specific user works", async () => {
 test("POST create user works", async () => {
   // send POST request containing a new user
   const user = {
-    first_name: "Homer",
-    last_name: "Simpson",
+    first_name: "homer",
+    last_name: "simpsoN",
     username: "hojo742",
     password: "donuts",
     pfp: "https://i.imgur.com/ZaXjTYr.jpeg",
@@ -61,8 +61,8 @@ test("POST create user works", async () => {
   // check user is in database
   const userId = response.body.userId;
   const dbUser = await User.findById(userId);
-  expect(dbUser.first_name).toEqual(user.first_name);
-  expect(dbUser.last_name).toEqual(user.last_name);
+  expect(dbUser.first_name).toEqual("Homer");
+  expect(dbUser.last_name).toEqual("Simpson");
   expect(dbUser.username).toEqual(user.username);
   expect(dbUser.pfp).toEqual(user.pfp);
   expect(dbUser.cover).toEqual(user.cover);
