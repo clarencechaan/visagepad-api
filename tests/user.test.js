@@ -483,6 +483,18 @@ describe("GET relationship status of user works", () => {
     // check status given is correct
     expect(response.body.status).toEqual("Friends");
   });
+
+  test("user is self", async () => {
+    // send GET request with token
+    const response = await request(app)
+      .get(`/api/users/${users[0]._id}/relationship`)
+      .set("Authorization", "Bearer " + users[0].token);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check status given is correct
+    expect(response.body.status).toEqual("Self");
+  });
 });
 
 describe("PUT update profile picture or cover photo works", () => {

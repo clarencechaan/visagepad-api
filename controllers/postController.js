@@ -8,9 +8,11 @@ const { body, validationResult } = require("express-validator");
 // output: [{ author, content, date, img_url, likes }, ...]
 exports.user_posts_get = async function (req, res, next) {
   try {
-    const posts = await Post.find({ author: req.params.userId }).sort({
-      date: -1,
-    });
+    const posts = await Post.find({ author: req.params.userId })
+      .sort({
+        date: -1,
+      })
+      .populate("author likes");
     res.json(posts);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -77,7 +79,9 @@ exports.feed_get = [
               { author: req.user._id },
               ...friends.map((friend) => ({ author: friend })),
             ],
-          }).sort({ date: -1 })
+          })
+            .sort({ date: -1 })
+            .populate("author likes")
         : [];
       res.json(posts);
     } catch (err) {

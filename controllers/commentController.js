@@ -7,9 +7,11 @@ const { body, validationResult } = require("express-validator");
 // output: [{ author, message, date }, ...]
 exports.post_comments_get = async function (req, res, next) {
   try {
-    const comments = await Comment.find({ post: req.params.postId }).sort({
-      date: 1,
-    });
+    const comments = await Comment.find({ post: req.params.postId })
+      .sort({
+        date: 1,
+      })
+      .populate("author likes");
     res.json(comments);
   } catch (err) {
     res.json({ msg: err.message || err });

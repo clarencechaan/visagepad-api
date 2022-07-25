@@ -348,9 +348,14 @@ exports.friend_requests_get = [
 exports.relationship_get = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
+    const relatingUserId = req.user._id;
+    const relatedUserId = req.params.userId;
+    if (relatingUserId.toString() === relatedUserId.toString()) {
+      res.json({ status: "Self" });
+      return;
+    }
+
     try {
-      const relatingUserId = req.user._id;
-      const relatedUserId = req.params.userId;
       const { userRelationshipA, userRelationshipB } =
         await getUserRelationships(relatingUserId, relatedUserId);
 
