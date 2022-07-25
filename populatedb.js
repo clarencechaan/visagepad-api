@@ -67,30 +67,20 @@ function userCreate(first_name, last_name, username, password, pfp, cover, cb) {
     cover,
   });
 
-  user.save(function (err) {
+  bcrypt.hash(password, 10, (err, hashedPassword) => {
     if (err) {
-      return cb(err, null);
+      return next(err);
     }
-    console.log("New User: " + user);
-    users.push(user);
-    cb(null, user);
+    user.password = hashedPassword;
+    user.save(function (err) {
+      if (err) {
+        return cb(err, null);
+      }
+      console.log("New User: " + user);
+      users.push(user);
+      cb(null, user);
+    });
   });
-
-  // bcrypt.hash(password, 10, (err, hashedPassword) => {
-  //   console.log("hashing");
-  //   if (err) {
-  //     return next(err);
-  //   }
-  //   user.password = hashedPassword;
-  //   user.save(function (err) {
-  //     if (err) {
-  //       return cb(err, null);
-  //     }
-  //     console.log("New User: " + user);
-  //     users.push(user);
-  //     cb(null, user);
-  //   });
-  // });
 }
 
 function postCreate(author, content, date, img_url, likes, cb) {
