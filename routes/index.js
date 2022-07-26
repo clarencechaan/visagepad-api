@@ -34,7 +34,7 @@ router.get("/api/users/:userId/posts", post_controller.user_posts_get);
 router.post("/api/users/:userId/posts", post_controller.user_posts_post);
 
 /* GET requesting user's feed */
-router.get("/api/my-feed", post_controller.feed_get);
+router.get("/api/my-feed/:page?", post_controller.feed_get);
 
 /* GET specific post */
 router.get("/api/posts/:postId", post_controller.post_get);

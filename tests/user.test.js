@@ -294,9 +294,9 @@ describe("PUT disallow friendship works", () => {
 describe("GET friends list works", () => {
   test("user with multiple friends", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      `/api/users/${users[4]._id}/friends`
-    );
+    const response = await request(app)
+      .get(`/api/users/${users[4]._id}/friends`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
 
@@ -315,9 +315,9 @@ describe("GET friends list works", () => {
 
   test("user with 1 friend", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      `/api/users/${users[0]._id}/friends`
-    );
+    const response = await request(app)
+      .get(`/api/users/${users[0]._id}/friends`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
 
@@ -330,9 +330,9 @@ describe("GET friends list works", () => {
 
   test("user with no friends", async () => {
     // send GET request with userId parameter
-    const response = await request(app).get(
-      `/api/users/${users[1]._id}/friends`
-    );
+    const response = await request(app)
+      .get(`/api/users/${users[1]._id}/friends`)
+      .set("Authorization", "Bearer " + users[0].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
 

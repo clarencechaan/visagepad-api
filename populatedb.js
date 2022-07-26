@@ -270,7 +270,8 @@ function createComments(cb) {
 
       // likes
       let likes = [];
-      const numOfLikes = Math.floor(Math.random() * 4);
+      const numOfLikes =
+        Math.random() < 0.5 ? Math.floor(Math.random() * 6) : 0;
       for (let i = 0; i < numOfLikes; i++) {
         const idx = Math.floor(Math.random() * numOfUsers);
         if (!likes.includes(users[idx])) {

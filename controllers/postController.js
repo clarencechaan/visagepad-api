@@ -57,11 +57,13 @@ exports.user_posts_post = [
 ];
 
 /* GET requesting user's feed (sorted by date descending) */
-// input: req.user
+// input: req.user, req.params.page
 // output: [{ author, content, date, img_url, likes }, ...]
 exports.feed_get = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
+    const pageNumber = req.params.page;
+
     try {
       // get friends list
       const relationships = await UserRelationship.find({
@@ -81,6 +83,8 @@ exports.feed_get = [
             ],
           })
             .sort({ date: -1 })
+            .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
+            .limit(pageNumber > 0 ? 3 : 0)
             .populate("author likes")
         : [];
       res.json(posts);
