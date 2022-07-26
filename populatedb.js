@@ -265,8 +265,9 @@ function createComments(cb) {
       message = message.join(" ");
 
       // date
-      const timeSincePost = Date.now() - new Date(post.date);
-      const date = post.date + Math.floor(Math.random() * timeSincePost);
+      const postDate = new Date(post.date);
+      const timeSincePost = Date.now() - postDate;
+      const date = postDate + Math.floor(Math.random() * timeSincePost);
 
       // likes
       let likes = [];

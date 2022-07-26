@@ -28,7 +28,7 @@ router.put(
 // POSTS
 
 /* GET user's posts */
-router.get("/api/users/:userId/posts", post_controller.user_posts_get);
+router.get("/api/users/:userId/posts/:page?", post_controller.user_posts_get);
 
 /* POST create post */
 router.post("/api/users/:userId/posts", post_controller.user_posts_post);

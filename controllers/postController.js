@@ -4,14 +4,18 @@ const passport = require("passport");
 const { body, validationResult } = require("express-validator");
 
 /* GET user's posts (sorted by date descending) */
-// input: params.userId
+// input: params.userId, req.params.page
 // output: [{ author, content, date, img_url, likes }, ...]
 exports.user_posts_get = async function (req, res, next) {
+  const pageNumber = req.params.page;
+
   try {
     const posts = await Post.find({ author: req.params.userId })
       .sort({
         date: -1,
       })
+      .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
+      .limit(pageNumber > 0 ? 3 : 0)
       .populate("author likes");
     res.json(posts);
   } catch (err) {
