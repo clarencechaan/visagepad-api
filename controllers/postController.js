@@ -132,24 +132,34 @@ exports.post_delete = [
   },
 ];
 
-/* PUT toggle like specific post */
-// input: req.user, params.postId, { like }
+/* PUT like specific post */
+// input: req.user, params.postId
 // output: { msg }
 exports.post_like_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
-      if (req.body.like === "true") {
-        await Post.findByIdAndUpdate(req.params.postId, {
-          $addToSet: { likes: req.user._id },
-        });
-        res.json({ msg: "Post successfully liked." });
-      } else {
-        await Post.findByIdAndUpdate(req.params.postId, {
-          $pull: { likes: req.user._id },
-        });
-        res.json({ msg: "Post successfully unliked." });
-      }
+      await Post.findByIdAndUpdate(req.params.postId, {
+        $addToSet: { likes: req.user._id },
+      });
+      res.json({ msg: "Post successfully liked." });
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* PUT unlike specific post */
+// input: req.user, params.postId
+// output: { msg }
+exports.post_unlike_put = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      await Post.findByIdAndUpdate(req.params.postId, {
+        $pull: { likes: req.user._id },
+      });
+      res.json({ msg: "Post successfully unliked." });
     } catch (err) {
       res.json({ msg: err.message || err });
     }

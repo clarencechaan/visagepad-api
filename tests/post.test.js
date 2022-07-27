@@ -203,47 +203,42 @@ describe("`DELETE` specific post works", () => {
   });
 });
 
-describe("PUT toggle like specific post", () => {
-  test("like post", async () => {
-    // send PUT request with postId parameter and token
-    const response = await request(app)
-      .put(`/api/posts/${posts[0]._id}/like`)
-      .set("Authorization", "Bearer " + users[1].token)
-      .type("form")
-      .send({ like: true });
-    expect(response.status).toEqual(200);
-    expect(response.headers["content-type"]).toMatch(/json/);
+test("PUT like specific post works", async () => {
+  // send PUT request with postId parameter and token
+  const response = await request(app)
+    .put(`/api/posts/${posts[0]._id}/like`)
+    .set("Authorization", "Bearer " + users[1].token);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
 
-    // check msg
-    expect(response.body.msg).toEqual("Post successfully liked.");
+  // check msg
+  expect(response.body.msg).toEqual("Post successfully liked.");
 
-    // check post has been liked
-    expect((await Post.findById(posts[0]._id)).likes).toEqual([users[1]._id]);
+  // check post has been liked
+  expect((await Post.findById(posts[0]._id)).likes).toEqual([users[1]._id]);
 
-    // revert changes in database
-    await Post.findByIdAndUpdate(posts[0]._id, {
-      $pull: { likes: users[1]._id },
-    });
+  // revert changes in database
+  await Post.findByIdAndUpdate(posts[0]._id, {
+    $pull: { likes: users[1]._id },
   });
-  test("unlike post", async () => {
-    // send PUT request with postId parameter and token
-    const response = await request(app)
-      .put(`/api/posts/${posts[4]._id}/like`)
-      .set("Authorization", "Bearer " + users[2].token)
-      .type("form")
-      .send({ like: false });
-    expect(response.status).toEqual(200);
-    expect(response.headers["content-type"]).toMatch(/json/);
+});
 
-    // check msg
-    expect(response.body.msg).toEqual("Post successfully unliked.");
+test("PUT unlike specific post works", async () => {
+  // send PUT request with postId parameter and token
+  const response = await request(app)
+    .put(`/api/posts/${posts[4]._id}/unlike`)
+    .set("Authorization", "Bearer " + users[2].token);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
 
-    // check post has been unliked
-    expect((await Post.findById(posts[4]._id)).likes).toEqual([]);
+  // check msg
+  expect(response.body.msg).toEqual("Post successfully unliked.");
 
-    // revert changes in database
-    await Post.findByIdAndUpdate(posts[4]._id, {
-      $push: { likes: users[2]._id },
-    });
+  // check post has been unliked
+  expect((await Post.findById(posts[4]._id)).likes).toEqual([]);
+
+  // revert changes in database
+  await Post.findByIdAndUpdate(posts[4]._id, {
+    $push: { likes: users[2]._id },
   });
 });

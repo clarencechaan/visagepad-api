@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 console.log(
-  "This script populates some test games, genres, consoles, and accessories to your database. Specified database as argument - e.g.: populatedb mongodb+srv://cooluser:coolpassword@cluster0.a9azn.mongodb.net/video_game_inventory?retryWrites=true"
+  "This script populates your database. Specified database as argument - e.g.: populatedb mongodb+srv://cooluser:coolpassword@cluster0.a9azn.mongodb.net/video_game_inventory?retryWrites=true"
 );
 
 // Get arguments passed on command line
@@ -149,8 +149,8 @@ function createUsers(cb) {
     const last_name = nameBank[Math.floor(Math.random() * 1000)];
     const username = usernameBank[i];
     const password = "pass";
-    const pfp = linkBank[2 * i];
-    const cover = linkBank[2 * i + 1];
+    const pfp = linkBank[Math.floor(Math.random() * 1575)];
+    const cover = linkBank[Math.floor(Math.random() * 1575)];
 
     fns.push(function (callback) {
       userCreate(
@@ -198,8 +198,6 @@ function createPosts(cb) {
       content[0] = content[0].charAt(0).toUpperCase() + content[0].slice(1);
       content[content.length - 1] = content[content.length - 1] + ".";
       content = content.join(" ");
-
-      console.log(content);
 
       // date
       const timeAgo = Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 7 * 12);
@@ -267,7 +265,8 @@ function createComments(cb) {
       // date
       const postDate = new Date(post.date);
       const timeSincePost = Date.now() - postDate;
-      const date = postDate + Math.floor(Math.random() * timeSincePost);
+      const date =
+        postDate.getTime() + Math.floor(Math.random() * timeSincePost);
 
       // likes
       let likes = [];

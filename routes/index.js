@@ -42,8 +42,11 @@ router.get("/api/posts/:postId", post_controller.post_get);
 /* DELETE specific post */
 router.delete("/api/posts/:postId", post_controller.post_delete);
 
-/* PUT toggle like specific post */
+/* PUT like specific post */
 router.put("/api/posts/:postId/like", post_controller.post_like_put);
+
+/* PUT unlike specific post */
+router.put("/api/posts/:postId/unlike", post_controller.post_unlike_put);
 
 // USERS
 
