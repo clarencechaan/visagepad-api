@@ -83,4 +83,7 @@ router.get("/api/users/:userId/relationship", user_controller.relationship_get);
 /* PUT update user profile picture or cover photo */
 router.put("/api/update-photo", user_controller.user_photo_put);
 
+/* GET search users */
+router.get("/api/search-users/:query", user_controller.search_users_get);
+
 module.exports = router;

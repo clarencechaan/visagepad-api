@@ -536,3 +536,37 @@ describe("PUT update profile picture or cover photo works", () => {
     await User.findByIdAndUpdate(users[1]._id, users[1]);
   });
 });
+
+describe("GET search users works", () => {
+  test("first name match", async () => {
+    // send PUT request with token and pfp
+    const response = await request(app).get(`/api/search-users/leonard`);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check correct user(s) given
+    expect(response.body.length).toEqual(1);
+    expect(response.body[0]._id).toEqual(users[0]._id.toString());
+  });
+
+  test("full name match", async () => {
+    // send PUT request with token and pfp
+    const response = await request(app).get(`/api/search-users/tom hanks`);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check correct user(s) given
+    expect(response.body.length).toEqual(1);
+    expect(response.body[0]._id).toEqual(users[2]._id.toString());
+  });
+
+  test("no match", async () => {
+    // send PUT request with token and pfp
+    const response = await request(app).get(`/api/search-users/joseph badmon`);
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check correct user(s) given
+    expect(response.body).toEqual([]);
+  });
+});

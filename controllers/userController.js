@@ -387,3 +387,20 @@ exports.user_photo_put = [
     }
   },
 ];
+
+/* GET search users */
+// input: params.query
+// output: [{ first_name, last_name, username, pfp }, ...]
+exports.search_users_get = [
+  body("query", "Invalid query.").trim().escape(),
+  async function (req, res, next) {
+    try {
+      const users = await User.find({
+        $text: { $search: req.params.query },
+      }).select("first_name last_name pfp");
+      res.json(users);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
