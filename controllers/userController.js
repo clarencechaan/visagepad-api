@@ -391,16 +391,50 @@ exports.user_photo_put = [
 /* GET search users */
 // input: params.query
 // output: [{ first_name, last_name, username, pfp }, ...]
-exports.search_users_get = [
-  body("query", "Invalid query.").trim().escape(),
-  async function (req, res, next) {
-    try {
-      const users = await User.find({
-        $text: { $search: req.params.query },
-      }).select("first_name last_name pfp");
-      res.json(users);
-    } catch (err) {
-      res.json({ msg: err.message || err });
-    }
-  },
-];
+exports.search_users_get = async function (req, res, next) {
+  let terms = req.params.query.trim().replace(/  +/g, " ").split(" ");
+  let expressions = [
+    { first_name: { $regex: terms[0], $options: "i" } },
+    { last_name: { $regex: terms[0], $options: "i" } },
+  ];
+  if (terms[1]) {
+    expressions.push({ first_name: { $regex: terms[1], $options: "i" } });
+    expressions.push({ last_name: { $regex: terms[1], $options: "i" } });
+  }
+
+  let expression = {};
+  if (!terms[1]) {
+    expression = {
+      $or: [
+        { first_name: { $regex: `^${terms[0]}`, $options: "i" } },
+        { last_name: { $regex: `^${terms[0]}`, $options: "i" } },
+      ],
+    };
+  } else {
+    expression = {
+      $or: [
+        {
+          $and: [
+            { first_name: { $regex: `^${terms[0]}`, $options: "i" } },
+            { last_name: { $regex: `^${terms[1]}`, $options: "i" } },
+          ],
+        },
+        {
+          $and: [
+            { first_name: { $regex: `^${terms[1]}`, $options: "i" } },
+            { last_name: { $regex: `^${terms[0]}`, $options: "i" } },
+          ],
+        },
+      ],
+    };
+  }
+
+  try {
+    const users = await User.find(expression).select(
+      "first_name last_name pfp"
+    );
+    res.json(users);
+  } catch (err) {
+    res.json({ msg: err.message || err });
+  }
+};

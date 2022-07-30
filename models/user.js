@@ -11,7 +11,5 @@ const UserSchema = new Schema({
   cover: { type: String },
 });
 
-UserSchema.index({ first_name: "text", last_name: "text" });
-
 //Export model
 module.exports = mongoose.model("User", UserSchema);

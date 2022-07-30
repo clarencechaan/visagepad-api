@@ -1,26 +1,23 @@
 #! /usr/bin/env node
 
-console.log(
-  "This script populates your database. Specified database as argument - e.g.: populatedb mongodb+srv://cooluser:coolpassword@cluster0.a9azn.mongodb.net/video_game_inventory?retryWrites=true"
-);
-
 // Get arguments passed on command line
-var userArgs = process.argv.slice(2);
-/*
-if (!userArgs[0].startsWith('mongodb')) {
-    console.log('ERROR: You need to specify a valid mongodb URL as the first argument');
-    return
-}
-*/
+
+// var userArgs = process.argv.slice(2);
+
+// console.log(
+//   "This script populates your database. Specified database as argument - e.g.: populatedb mongodb+srv://cooluser:coolpassword@cluster0.a9azn.mongodb.net/video_game_inventory?retryWrites=true"
+// );
+
 var async = require("async");
 var bcrypt = require("bcryptjs");
+require("dotenv").config();
 var User = require("./models/user");
 var Post = require("./models/post");
 var Comment = require("./models/comment");
 var UserRelationship = require("./models/userRelationship");
 
 var mongoose = require("mongoose");
-var mongoDB = userArgs[0];
+var mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
