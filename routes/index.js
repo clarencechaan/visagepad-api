@@ -86,4 +86,7 @@ router.put("/api/update-photo", user_controller.user_photo_put);
 /* GET search users */
 router.get("/api/search-users/:query", user_controller.search_users_get);
 
+/* GET people you may know */
+router.get("/api/people-may-know", user_controller.people_may_know_get);
+
 module.exports = router;

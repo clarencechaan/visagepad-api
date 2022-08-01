@@ -390,7 +390,7 @@ exports.user_photo_put = [
 
 /* GET search users */
 // input: params.query
-// output: [{ first_name, last_name, username, pfp }, ...]
+// output: [{ first_name, last_name, pfp }, ...]
 exports.search_users_get = async function (req, res, next) {
   let terms = req.params.query.trim().replace(/  +/g, " ").split(" ");
   let expressions = [
@@ -438,3 +438,32 @@ exports.search_users_get = async function (req, res, next) {
     res.json({ msg: err.message || err });
   }
 };
+
+/* GET people you may know */
+// input: req.user
+// output: [{ first_name, last_name, pfp }, ...]
+exports.people_may_know_get = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      const friends = (
+        await UserRelationship.find({
+          relating_user: req.user._id,
+          status: "Friends",
+        })
+      ).map((rel) => rel.related_user._id);
+
+      const users = await User.aggregate([
+        {
+          $match: { _id: { $nin: [...friends, req.user._id] } },
+        },
+        { $sample: { size: 15 } },
+        { $project: { first_name: true, last_name: true, cover: true } },
+      ]);
+
+      res.json(users);
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];

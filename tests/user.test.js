@@ -539,7 +539,7 @@ describe("PUT update profile picture or cover photo works", () => {
 
 describe("GET search users works", () => {
   test("first name match", async () => {
-    // send PUT request with token and pfp
+    // send GET request
     const response = await request(app).get(`/api/search-users/leonard`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
@@ -550,7 +550,7 @@ describe("GET search users works", () => {
   });
 
   test("full name match", async () => {
-    // send PUT request with token and pfp
+    // send GET request
     const response = await request(app).get(`/api/search-users/tom hanks`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
@@ -561,7 +561,7 @@ describe("GET search users works", () => {
   });
 
   test("no match", async () => {
-    // send PUT request with token and pfp
+    // send GET request
     const response = await request(app).get(`/api/search-users/joseph badmon`);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
@@ -569,4 +569,29 @@ describe("GET search users works", () => {
     // check correct user(s) given
     expect(response.body).toEqual([]);
   });
+});
+
+test("GET people you may know works", async () => {
+  // send GET request with token
+  const response = await request(app)
+    .get(`/api/people-may-know`)
+    .set("Authorization", "Bearer " + users[0].token);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
+
+  // check correct user(s) given
+  // user 1, 2, 3, 5
+  expect(response.body.length).toEqual(4);
+  expect(
+    response.body.some((user) => user._id === users[1]._id.toString())
+  ).toBeTruthy();
+  expect(
+    response.body.some((user) => user._id === users[2]._id.toString())
+  ).toBeTruthy();
+  expect(
+    response.body.some((user) => user._id === users[3]._id.toString())
+  ).toBeTruthy();
+  expect(
+    response.body.some((user) => user._id === users[5]._id.toString())
+  ).toBeTruthy();
 });
