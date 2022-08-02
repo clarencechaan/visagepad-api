@@ -159,8 +159,9 @@ test("GET specific post works", async () => {
   expect(response.status).toEqual(200);
   expect(response.headers["content-type"]).toMatch(/json/);
   expect(response.body._id).toEqual(posts[0]._id.toString());
+
   // author, content, date, img_url, likes
-  expect(response.body.author).toEqual(posts[0].author._id.toString());
+  expect(response.body.author._id).toEqual(posts[0].author._id.toString());
   expect(response.body.content).toEqual(posts[0].content);
   expect(new Date(response.body.date).getTime()).toEqual(posts[0].date);
   expect(response.body.likes).toEqual(posts[0].likes);
@@ -240,5 +241,56 @@ test("PUT unlike specific post works", async () => {
   // revert changes in database
   await Post.findByIdAndUpdate(posts[4]._id, {
     $push: { likes: users[2]._id },
+  });
+});
+
+describe("PUT edit post works", () => {
+  test("user is authorized", async () => {
+    // send PUT request with postId parameter and token
+    const response = await request(app)
+      .put(`/api/posts/${posts[0]._id}`)
+      .set("Authorization", "Bearer " + users[0].token)
+      .type("form")
+      .send({
+        content: "My updated content",
+        img_url: "https://i.imgur.com/v2bypHW.jpeg",
+      });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check msg
+    expect(response.body.msg).toEqual("Post successfully edited.");
+
+    // check post has been updated
+    expect((await Post.findById(posts[0]._id)).content).toEqual(
+      "My updated content"
+    );
+    expect((await Post.findById(posts[0]._id)).img_url).toEqual(
+      "https://i.imgur.com/v2bypHW.jpeg"
+    );
+
+    // revert changes in database
+    await Post.findByIdAndUpdate(posts[0]._id, posts[0]);
+  });
+
+  test("user is unauthorized", async () => {
+    // send PUT request with postId parameter and token
+    const response = await request(app)
+      .put(`/api/posts/${posts[0]._id}`)
+      .set("Authorization", "Bearer " + users[1].token)
+      .type("form")
+      .send({ content: "My updated content" });
+    expect(response.status).toEqual(200);
+    expect(response.headers["content-type"]).toMatch(/json/);
+
+    // check msg
+    expect(response.body.msg).toEqual(
+      "You are unauthorized to edit this post."
+    );
+
+    // check post has not been updated
+    expect((await Post.findById(posts[0]._id)).content).toEqual(
+      posts[0].content
+    );
   });
 });

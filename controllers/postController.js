@@ -104,7 +104,7 @@ exports.feed_get = [
 exports.post_get = async function (req, res, next) {
   try {
     const postId = req.params.postId;
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("author likes");
     res.json(post);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -160,6 +160,40 @@ exports.post_unlike_put = [
         $pull: { likes: req.user._id },
       });
       res.json({ msg: "Post successfully unliked." });
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* PUT edit post */
+// input: req.user, params.postId, { content, (img_url) }
+// output: { postId }
+exports.user_posts_put = [
+  passport.authenticate("jwt", { session: false }),
+  body("content", "Content must be between 1 and 1500 characters.")
+    .trim()
+    .isLength({ min: 1, max: 1500 })
+    .escape(),
+  body("img_url", "Image URL must be a URL.").optional().isURL(),
+  async function (req, res, next) {
+    const errors = validationResult(req);
+    const { content, img_url } = req.body;
+
+    try {
+      // throw error if validation errors exist
+      if (!errors.isEmpty()) {
+        throw errors.array();
+      }
+
+      const post = await Post.findById(req.params.postId);
+
+      if (post.author.equals(req.user._id)) {
+        await Post.findByIdAndUpdate(req.params.postId, { content, img_url });
+        res.json({ msg: "Post successfully edited." });
+      } else {
+        throw new Error("You are unauthorized to edit this post.");
+      }
     } catch (err) {
       res.json({ msg: err.message || err });
     }

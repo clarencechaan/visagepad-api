@@ -458,7 +458,7 @@ exports.people_may_know_get = [
           $match: { _id: { $nin: [...friends, req.user._id] } },
         },
         { $sample: { size: 15 } },
-        { $project: { first_name: true, last_name: true, cover: true } },
+        { $project: { first_name: true, last_name: true, pfp: true } },
       ]);
 
       res.json(users);

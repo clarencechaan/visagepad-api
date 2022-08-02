@@ -48,6 +48,9 @@ router.put("/api/posts/:postId/like", post_controller.post_like_put);
 /* PUT unlike specific post */
 router.put("/api/posts/:postId/unlike", post_controller.post_unlike_put);
 
+/* PUT edit post */
+router.put("/api/posts/:postId", post_controller.user_posts_put);
+
 // USERS
 
 /* GET specific user */
