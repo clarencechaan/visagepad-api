@@ -24,22 +24,20 @@ exports.user_get = async function (req, res, next) {
 exports.user_post = [
   body("first_name", "First name must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 24 })
-    .escape(),
+    .isLength({ min: 1, max: 24 }),
   body("last_name", "Last name must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 24 })
-    .escape(),
+    .isLength({ min: 1, max: 24 }),
   body("username", "Username must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 24 })
-    .escape(),
+    .isLength({ min: 1, max: 24 }),
   body("password", "Password must be between 1 and 24 characters.")
     .trim()
-    .isLength({ min: 1, max: 24 })
-    .escape(),
-  body("pfp", "PFP must be a URL.").optional().isURL(),
-  body("cover", "Cover photo must be a URL.").optional().isURL(),
+    .isLength({ min: 1, max: 24 }),
+  body("pfp", "PFP must be a URL.").optional({ checkFalsy: true }).isURL(),
+  body("cover", "Cover photo must be a URL.")
+    .optional({ checkFalsy: true })
+    .isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
     const { password, pfp, cover } = req.body;

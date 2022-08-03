@@ -25,6 +25,9 @@ router.put(
   comment_controller.comment_like_put
 );
 
+/* GET specific comment */
+router.get("/api/comments/:commentId", comment_controller.comment_get);
+
 // POSTS
 
 /* GET user's posts */

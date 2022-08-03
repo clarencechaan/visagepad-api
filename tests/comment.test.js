@@ -223,3 +223,13 @@ describe("PUT toggle like on comment", () => {
     });
   });
 });
+
+test("GET specific comment works", async () => {
+  // send GET request with commentId parameter
+  const response = await request(app).get(`/api/comments/${comments[0]._id}`);
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
+
+  // check comment is retrieved
+  expect(response.body._id).toEqual(comments[0]._id.toString());
+});

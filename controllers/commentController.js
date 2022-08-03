@@ -11,7 +11,8 @@ exports.post_comments_get = async function (req, res, next) {
       .sort({
         date: 1,
       })
-      .populate("author likes");
+      .populate("author", "first_name last_name pfp")
+      .populate("likes", "first_name last_name pfp");
     res.json(comments);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -129,3 +130,21 @@ exports.comment_like_put = [
     }
   },
 ];
+
+/* GET specific comment */
+// input: params.commentId
+// output: { author, message, date }
+exports.comment_get = async function (req, res, next) {
+  try {
+    const comment = await Comment.findById(req.params.commentId)
+      .populate("author", "first_name last_name pfp")
+      .populate("likes", "first_name last_name pfp");
+    if (comment) {
+      res.json(comment);
+    } else {
+      res.json({ msg: "Comment not found." });
+    }
+  } catch (err) {
+    res.json({ msg: err.message || err });
+  }
+};

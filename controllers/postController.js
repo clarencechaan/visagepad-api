@@ -16,7 +16,8 @@ exports.user_posts_get = async function (req, res, next) {
       })
       .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
       .limit(pageNumber > 0 ? 3 : 0)
-      .populate("author likes");
+      .populate("author", "first_name last_name pfp")
+      .populate("likes", "first_name last_name pfp");
     res.json(posts);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -30,9 +31,10 @@ exports.user_posts_post = [
   passport.authenticate("jwt", { session: false }),
   body("content", "Content must be between 1 and 1500 characters.")
     .trim()
-    .isLength({ min: 1, max: 1500 })
-    .escape(),
-  body("img_url", "Image URL must be a URL.").optional().isURL(),
+    .isLength({ min: 1, max: 1500 }),
+  body("img_url", "Image URL must be a URL.")
+    .optional({ checkFalsy: true })
+    .isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
     const { content, img_url } = req.body;
@@ -89,7 +91,8 @@ exports.feed_get = [
             .sort({ date: -1 })
             .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
             .limit(pageNumber > 0 ? 3 : 0)
-            .populate("author likes")
+            .populate("author", "first_name last_name pfp")
+            .populate("likes", "first_name last_name pfp")
         : [];
       res.json(posts);
     } catch (err) {
@@ -104,7 +107,9 @@ exports.feed_get = [
 exports.post_get = async function (req, res, next) {
   try {
     const postId = req.params.postId;
-    const post = await Post.findById(postId).populate("author likes");
+    const post = await Post.findById(postId)
+      .populate("author", "first_name last_name pfp")
+      .populate("likes", "first_name last_name pfp");
     res.json(post);
   } catch (err) {
     res.json({ msg: err.message || err });
@@ -173,9 +178,10 @@ exports.user_posts_put = [
   passport.authenticate("jwt", { session: false }),
   body("content", "Content must be between 1 and 1500 characters.")
     .trim()
-    .isLength({ min: 1, max: 1500 })
-    .escape(),
-  body("img_url", "Image URL must be a URL.").optional().isURL(),
+    .isLength({ min: 1, max: 1500 }),
+  body("img_url", "Image URL must be a URL.")
+    .optional({ checkFalsy: true })
+    .isURL(),
   async function (req, res, next) {
     const errors = validationResult(req);
     const { content, img_url } = req.body;
