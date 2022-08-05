@@ -107,24 +107,34 @@ exports.comment_put = [
   },
 ];
 
-/* PUT toggle like on comment */
+/* PUT like comment */
 // input: params.commentId, req.user, { like }
 // output: { msg }
 exports.comment_like_put = [
   passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
-      if (req.body.like === "true") {
-        await Comment.findByIdAndUpdate(req.params.commentId, {
-          $addToSet: { likes: req.user._id },
-        });
-        res.json({ msg: "Comment successfully liked." });
-      } else {
-        await Comment.findByIdAndUpdate(req.params.commentId, {
-          $pull: { likes: req.user._id },
-        });
-        res.json({ msg: "Comment successfully unliked." });
-      }
+      await Comment.findByIdAndUpdate(req.params.commentId, {
+        $addToSet: { likes: req.user._id },
+      });
+      res.json({ msg: "Comment successfully liked." });
+    } catch (err) {
+      res.json({ msg: err.message || err });
+    }
+  },
+];
+
+/* PUT unlike comment */
+// input: params.commentId, req.user, { like }
+// output: { msg }
+exports.comment_unlike_put = [
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    try {
+      await Comment.findByIdAndUpdate(req.params.commentId, {
+        $pull: { likes: req.user._id },
+      });
+      res.json({ msg: "Comment successfully unliked." });
     } catch (err) {
       res.json({ msg: err.message || err });
     }

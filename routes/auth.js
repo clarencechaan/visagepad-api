@@ -34,4 +34,19 @@ router.post("/login", function (req, res, next) {
   )(req, res);
 });
 
+// log in with facebook
+router.get("/login/facebook", passport.authenticate("facebook"));
+
+// redirect after facebook authentication
+router.get(
+  "/oauth2/redirect/facebook",
+  passport.authenticate("facebook", {
+    failureRedirect: "https://localhost:3000/",
+    failureMessage: true,
+  }),
+  function (req, res) {
+    res.redirect("https://localhost:3000/");
+  }
+);
+
 module.exports = router;

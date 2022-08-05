@@ -179,48 +179,49 @@ describe("PUT edit comment works", () => {
   });
 });
 
-describe("PUT toggle like on comment", () => {
-  test("like comment", async () => {
-    // send PUT request with comentId parameter and token
-    const response = await request(app)
-      .put(`/api/comments/${comments[0]._id}/like`)
-      .set("Authorization", "Bearer " + users[2].token)
-      .type("form")
-      .send({ like: true });
-    expect(response.status).toEqual(200);
-    expect(response.headers["content-type"]).toMatch(/json/);
+test("PUT like comment works", async () => {
+  // send PUT request with comentId parameter and token
+  const response = await request(app)
+    .put(`/api/comments/${comments[0]._id}/like`)
+    .set("Authorization", "Bearer " + users[2].token)
+    .type("form")
+    .send({ like: true });
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
 
-    // check msg
-    expect(response.body.msg).toEqual("Comment successfully liked.");
+  // check msg
+  expect(response.body.msg).toEqual("Comment successfully liked.");
 
-    // check comment has been liked
-    expect((await Comment.findById(comments[0]._id)).likes).toEqual([
-      users[2]._id,
-    ]);
+  // check comment has been liked
+  expect((await Comment.findById(comments[0]._id)).likes).toEqual([
+    users[2]._id,
+  ]);
 
-    // revert changes in database
-    await Comment.findByIdAndUpdate(comments[0]._id, {
-      $pull: { likes: users[2]._id },
-    });
+  // revert changes in database
+  await Comment.findByIdAndUpdate(comments[0]._id, {
+    $pull: { likes: users[2]._id },
   });
+});
 
-  test("unlike comment", async () => {
-    // send PUT request with postId parameter and token
-    const response = await request(app)
-      .put(`/api/comments/${comments[1]._id}/like`)
-      .set("Authorization", "Bearer " + users[1].token)
-      .type("form")
-      .send({ like: false });
-    expect(response.status).toEqual(200);
-    expect(response.headers["content-type"]).toMatch(/json/);
+test("PUT unlike comment works", async () => {
+  // send PUT request with postId parameter and token
+  const response = await request(app)
+    .put(`/api/comments/${comments[1]._id}/unlike`)
+    .set("Authorization", "Bearer " + users[1].token)
+    .type("form")
+    .send({ like: false });
+  expect(response.status).toEqual(200);
+  expect(response.headers["content-type"]).toMatch(/json/);
 
-    // check comment has been unliked
-    expect((await Comment.findById(comments[1]._id)).likes).toEqual([]);
+  // check msg
+  expect(response.body.msg).toEqual("Comment successfully unliked.");
 
-    // revert changes in database
-    await Comment.findByIdAndUpdate(comments[1]._id, {
-      $push: { likes: users[1]._id },
-    });
+  // check comment has been unliked
+  expect((await Comment.findById(comments[1]._id)).likes).toEqual([]);
+
+  // revert changes in database
+  await Comment.findByIdAndUpdate(comments[1]._id, {
+    $push: { likes: users[1]._id },
   });
 });
 

@@ -19,10 +19,16 @@ router.delete("/api/comments/:commentId", comment_controller.comment_delete);
 /* PUT edit comment on post */
 router.put("/api/comments/:commentId", comment_controller.comment_put);
 
-/* PUT toggle like comment on post */
+/* PUT like comment on post */
 router.put(
   "/api/comments/:commentId/like",
   comment_controller.comment_like_put
+);
+
+/* PUT unlike comment on post */
+router.put(
+  "/api/comments/:commentId/unlike",
+  comment_controller.comment_unlike_put
 );
 
 /* GET specific comment */
