@@ -41,11 +41,11 @@ router.get("/login/facebook", passport.authenticate("facebook"));
 router.get(
   "/oauth2/redirect/facebook",
   passport.authenticate("facebook", {
-    failureRedirect: "https://localhost:3000/",
+    failureRedirect: "https://localhost:3001/",
     failureMessage: true,
   }),
   function (req, res) {
-    res.redirect("https://localhost:3000/");
+    res.redirect("https://localhost:3001/");
   }
 );
 
