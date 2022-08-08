@@ -28,7 +28,7 @@ exports.user_posts_get = async function (req, res, next) {
 // input: req.user, { content, (img_url) }
 // output: { postId }
 exports.user_posts_post = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   body("content", "Content must be between 1 and 1500 characters.")
     .trim()
     .isLength({ min: 1, max: 1500 }),
@@ -66,7 +66,7 @@ exports.user_posts_post = [
 // input: req.user, req.params.page
 // output: [{ author, content, date, img_url, likes }, ...]
 exports.feed_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     const pageNumber = req.params.page;
 
@@ -120,7 +120,7 @@ exports.post_get = async function (req, res, next) {
 // input: req.user, params.postId
 // output: { msg }
 exports.post_delete = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const postId = req.params.postId;
@@ -141,7 +141,7 @@ exports.post_delete = [
 // input: req.user, params.postId
 // output: { msg }
 exports.post_like_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       await Post.findByIdAndUpdate(req.params.postId, {
@@ -158,7 +158,7 @@ exports.post_like_put = [
 // input: req.user, params.postId
 // output: { msg }
 exports.post_unlike_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       await Post.findByIdAndUpdate(req.params.postId, {
@@ -175,7 +175,7 @@ exports.post_unlike_put = [
 // input: req.user, params.postId, { content, (img_url) }
 // output: { postId }
 exports.user_posts_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   body("content", "Content must be between 1 and 1500 characters.")
     .trim()
     .isLength({ min: 1, max: 1500 }),

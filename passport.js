@@ -1,6 +1,6 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const FacebookStrategy = require("passport-facebook");
+const FacebookTokenStrategy = require("passport-facebook-token");
 const passportJWT = require("passport-jwt");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
@@ -58,22 +58,27 @@ passport.use(
 );
 
 passport.use(
-  new FacebookStrategy(
+  new FacebookTokenStrategy(
     {
       clientID: process.env["FACEBOOK_APP_ID"],
       clientSecret: process.env["FACEBOOK_APP_SECRET"],
-      callbackURL: "/auth/oauth2/redirect/facebook",
     },
-    function (accessToken, refreshToken, profile, cb) {
-      console.log(accessToken);
-      console.log(refreshToken);
-      console.log(profile);
-      const first_name = profile.displayName.split(" ")[0];
-      const last_name = profile.displayName.split(" ")[1];
-      const user = { _id: profile.id, first_name, last_name };
+    async function (accessToken, refreshToken, profile, cb) {
+      const first_name = profile.name.givenName;
+      const last_name = profile.name.familyName;
 
-      console.log(user);
-      cb(null, user);
+      let user = await User.findOne({ username: profile.id });
+      if (!user) {
+        user = {
+          username: profile.id,
+          first_name,
+          last_name,
+          pfp: profile.photos[0].value,
+        };
+        user = await new User(user).save();
+      }
+
+      cb(null, user, accessToken);
     }
   )
 );

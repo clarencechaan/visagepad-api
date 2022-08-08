@@ -123,7 +123,7 @@ async function getUserRelationships(userIdA, userIdB) {
 // input: req.user, params.userId
 // output: { msg }
 exports.allow_user_friendship_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const relatingUserId = req.user._id;
@@ -185,7 +185,7 @@ exports.allow_user_friendship_put = [
 // input: req.user, params.userId
 // output: { msg }
 exports.disallow_user_friendship_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const relatingUserId = req.user._id;
@@ -258,7 +258,7 @@ exports.disallow_user_friendship_put = [
 // input: req.user, params.userId,
 // output: [{ username, first_name, last_name, pfp }, ...]
 exports.friends_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const relationships = await UserRelationship.find({
@@ -282,7 +282,7 @@ exports.friends_get = [
 // input: req.user, params.userId
 // output: [{ username, first_name, last_name, pfp }, ...]
 exports.mutuals_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const relationshipsA = await UserRelationship.find({
@@ -323,7 +323,7 @@ exports.mutuals_get = [
 // input: req.user
 // output: [{ username, first_name, last_name, pfp }, ...]
 exports.friend_requests_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const relationships = await UserRelationship.find({
@@ -348,7 +348,7 @@ exports.friend_requests_get = [
 // input: req.user, params.userId
 // output: { status }
 exports.relationship_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     const relatingUserId = req.user._id;
     const relatedUserId = req.params.userId;
@@ -372,7 +372,7 @@ exports.relationship_get = [
 // input: req.user, { pfp, cover }
 // output: { msg }
 exports.user_photo_put = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       await User.findByIdAndUpdate(req.user._id, {
@@ -441,7 +441,7 @@ exports.search_users_get = async function (req, res, next) {
 // input: req.user
 // output: [{ first_name, last_name, pfp }, ...]
 exports.people_may_know_get = [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   async function (req, res, next) {
     try {
       const friends = (

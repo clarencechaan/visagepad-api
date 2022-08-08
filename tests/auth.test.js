@@ -13,7 +13,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use("/auth", auth);
 app.use("/auth/check-token", [
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate(["jwt", "facebook-token"], { session: false }),
   (req, res, next) => {
     res.json({ msg: "Success" });
   },

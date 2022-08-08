@@ -35,7 +35,29 @@ router.post("/login", function (req, res, next) {
 });
 
 // log in with facebook
-router.get("/login/facebook", passport.authenticate("facebook"));
+router.get("/login/facebook", function (req, res, next) {
+  passport.authenticate(
+    "facebook-token",
+    { session: false },
+    (err, user, token, info) => {
+      if (err || !user) {
+        return res.status(400).json({
+          msg: "Something is not right",
+          user: user,
+          info: info.message,
+        });
+      }
+
+      req.login(user, { session: false }, (err) => {
+        if (err) {
+          res.send(err);
+        }
+
+        return res.json({ user, token });
+      });
+    }
+  )(req, res);
+});
 
 // redirect after facebook authentication
 router.get(
