@@ -46,6 +46,12 @@ let users = [
     username: "kdot",
     plaintext_password: "goodkidmaadcity",
   },
+  {
+    first_name: "Wasalu",
+    last_name: "Jaco",
+    username: "foodnliquor",
+    plaintext_password: "thecool",
+  },
 ];
 
 let relationships = [

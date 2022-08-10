@@ -102,7 +102,7 @@ describe("GET user's feed works", () => {
     // send GET request with token
     const response = await request(app)
       .get("/api/my-feed")
-      .set("Authorization", "Bearer " + users[1].token);
+      .set("Authorization", "Bearer " + users[6].token);
     expect(response.status).toEqual(200);
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body.length).toEqual(0);

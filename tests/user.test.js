@@ -580,8 +580,8 @@ test("GET people you may know works", async () => {
   expect(response.headers["content-type"]).toMatch(/json/);
 
   // check correct user(s) given
-  // user 1, 2, 3, 5
-  expect(response.body.length).toEqual(4);
+  // user 1, 2, 3, 5, 6
+  expect(response.body.length).toEqual(5);
   expect(
     response.body.some((user) => user._id === users[1]._id.toString())
   ).toBeTruthy();
@@ -593,5 +593,8 @@ test("GET people you may know works", async () => {
   ).toBeTruthy();
   expect(
     response.body.some((user) => user._id === users[5]._id.toString())
+  ).toBeTruthy();
+  expect(
+    response.body.some((user) => user._id === users[6]._id.toString())
   ).toBeTruthy();
 });

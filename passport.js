@@ -6,6 +6,7 @@ const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 const User = require("./models/user");
 const bcrypt = require("bcryptjs");
+require("dotenv").config();
 
 passport.use(
   new LocalStrategy(function (username, password, cb) {
