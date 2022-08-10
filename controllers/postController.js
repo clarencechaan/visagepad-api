@@ -81,19 +81,17 @@ exports.feed_get = [
       );
 
       // get posts of each friend
-      const posts = friends.length
-        ? await Post.find({
-            $or: [
-              { author: req.user._id },
-              ...friends.map((friend) => ({ author: friend })),
-            ],
-          })
-            .sort({ date: -1 })
-            .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
-            .limit(pageNumber > 0 ? 3 : 0)
-            .populate("author", "first_name last_name pfp")
-            .populate("likes", "first_name last_name pfp")
-        : [];
+      const posts = await Post.find({
+        $or: [
+          { author: req.user._id },
+          ...friends.map((friend) => ({ author: friend })),
+        ],
+      })
+        .sort({ date: -1 })
+        .skip(pageNumber > 0 ? (pageNumber - 1) * 3 : 0)
+        .limit(pageNumber > 0 ? 3 : 0)
+        .populate("author", "first_name last_name pfp")
+        .populate("likes", "first_name last_name pfp");
       res.json(posts);
     } catch (err) {
       res.json({ msg: err.message || err });
