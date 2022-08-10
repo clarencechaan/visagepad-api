@@ -39,12 +39,12 @@ router.get("/login/facebook", function (req, res, next) {
   passport.authenticate(
     "facebook-token",
     { session: false },
-    (err, user, token, info) => {
+    (err, user, info) => {
       if (err || !user) {
         return res.status(400).json({
           msg: "Something is not right",
           user: user,
-          info: info.message,
+          info: info,
         });
       }
 
@@ -53,6 +53,8 @@ router.get("/login/facebook", function (req, res, next) {
           res.send(err);
         }
 
+        // generate a signed json web token with the contents of user object and return it in the response
+        const token = jwt.sign({ id: user._id }, "your_jwt_secret");
         return res.json({ user, token });
       });
     }

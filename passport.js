@@ -78,7 +78,7 @@ passport.use(
         user = await new User(user).save();
       }
 
-      cb(null, user, accessToken);
+      cb(null, user);
     }
   )
 );

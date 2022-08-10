@@ -23,7 +23,7 @@ exports.post_comments_get = async function (req, res, next) {
 // input: params.postId, req.user, { message }
 // output: { commentId }
 exports.comment_post = [
-  passport.authenticate(["jwt", "facebook-token"], { session: false }),
+  passport.authenticate("jwt", { session: false }),
   body("message", "Message must be between 1 and 1500 characters.")
     .trim()
     .isLength({ min: 1, max: 1500 })
@@ -56,7 +56,7 @@ exports.comment_post = [
 // input: { commentId }
 // output: { msg }
 exports.comment_delete = [
-  passport.authenticate(["jwt", "facebook-token"], { session: false }),
+  passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
       const commentId = req.params.commentId;
@@ -77,7 +77,7 @@ exports.comment_delete = [
 // input: params.commentId, req.user, { message }
 // output: { msg }
 exports.comment_put = [
-  passport.authenticate(["jwt", "facebook-token"], { session: false }),
+  passport.authenticate("jwt", { session: false }),
   body("message", "Message must be between 1 and 1500 characters.")
     .trim()
     .isLength({ min: 1, max: 1500 })
@@ -111,7 +111,7 @@ exports.comment_put = [
 // input: params.commentId, req.user, { like }
 // output: { msg }
 exports.comment_like_put = [
-  passport.authenticate(["jwt", "facebook-token"], { session: false }),
+  passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
       await Comment.findByIdAndUpdate(req.params.commentId, {
@@ -128,7 +128,7 @@ exports.comment_like_put = [
 // input: params.commentId, req.user, { like }
 // output: { msg }
 exports.comment_unlike_put = [
-  passport.authenticate(["jwt", "facebook-token"], { session: false }),
+  passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     try {
       await Comment.findByIdAndUpdate(req.params.commentId, {
