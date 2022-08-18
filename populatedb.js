@@ -47,7 +47,7 @@ const wordBank =
     " "
   );
 
-const numOfUsers = 200;
+const numOfUsers = 100;
 
 var users = [];
 var posts = [];
@@ -206,7 +206,7 @@ function createPosts(cb) {
 
       // likes
       let likes = [];
-      const numOfLikes = Math.floor(Math.random() * 21);
+      const numOfLikes = Math.floor(Math.random() * 26);
       for (let i = 0; i < numOfLikes; i++) {
         const idx = Math.floor(Math.random() * numOfUsers);
         if (!likes.includes(users[idx])) {
@@ -233,7 +233,7 @@ function createComments(cb) {
 
   // post
   for (const post of posts) {
-    const commentCount = Math.floor(Math.random() * 5);
+    const commentCount = Math.floor(Math.random() * 8);
 
     for (let i = 0; i < commentCount; i++) {
       // author
@@ -268,7 +268,7 @@ function createComments(cb) {
       // likes
       let likes = [];
       const numOfLikes =
-        Math.random() < 0.5 ? Math.floor(Math.random() * 6) : 0;
+        Math.random() < 0.5 ? Math.floor(Math.random() * 11) : 0;
       for (let i = 0; i < numOfLikes; i++) {
         const idx = Math.floor(Math.random() * numOfUsers);
         if (!likes.includes(users[idx])) {

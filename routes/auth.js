@@ -65,11 +65,11 @@ router.get("/login/facebook", function (req, res, next) {
 router.get(
   "/oauth2/redirect/facebook",
   passport.authenticate("facebook", {
-    failureRedirect: "https://localhost:3001/",
+    failureRedirect: process.env.FRONTEND_URL,
     failureMessage: true,
   }),
   function (req, res) {
-    res.redirect("https://localhost:3001/");
+    res.redirect(process.env.FRONTEND_URL);
   }
 );
 
