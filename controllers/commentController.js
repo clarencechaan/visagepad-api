@@ -108,7 +108,7 @@ exports.comment_put = [
 ];
 
 /* PUT like comment */
-// input: params.commentId, req.user, { like }
+// input: params.commentId, req.user
 // output: { msg }
 exports.comment_like_put = [
   passport.authenticate("jwt", { session: false }),
@@ -125,7 +125,7 @@ exports.comment_like_put = [
 ];
 
 /* PUT unlike comment */
-// input: params.commentId, req.user, { like }
+// input: params.commentId, req.user
 // output: { msg }
 exports.comment_unlike_put = [
   passport.authenticate("jwt", { session: false }),
