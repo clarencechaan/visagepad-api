@@ -2,7 +2,7 @@
 
 Express/Node RESTful API that provides access to the MongoDB database used in the MERN stack social media web application at https://visagepad.onrender.com/ \
 React frontend repo can be found at https://github.com/clarencechaan/visagepad-frontend \
-Queries to the API can be made by sending the desired HTTP request to [https://visagepad-api.herokuapp.com/](https://visagepad-api.herokuapp.com/)\<query>
+Queries to the API can be made by sending the desired HTTP request to `https://visagepad-api.onrender.com/<query>`
 
 | Method |                Endpoint                |                                       Description                                       |                 Required fields                | JSON Web Token (JWT) required |
 |:------:|:--------------------------------------:|:---------------------------------------------------------------------------------------:|:----------------------------------------------:|:-----------------------------:|
